@@ -1,0 +1,261 @@
+---
+title: "Simulation Tutorial"
+author: "Lisa DeBruine"
+date: 2020-02-13
+options:
+    line_width: 70
+---
+
+## Packages 
+
+```{julia;label=packages;term=true}
+using MixedModels       # run mixed MixedModels
+using MixedModelsSim    # simulation functions for mixed models
+using RCall, RData      # call R functions from inside Julia
+using DataFrames, Tables, DataFramesMeta # work with data tables
+using Random, StatsBase # statistical functions
+```
+
+## simulate_waldtests
+
+Function for returning p-values for simulated iterations.
+
+```{julia;label=simulate_waldtests}
+function simulate_waldtests(
+    rng::AbstractRNG,
+    n::Integer,
+    morig::MixedModel{T};
+    β = morig.β,
+    σ = morig.σ,
+    θ = morig.θ) where {T}
+    mod = deepcopy(morig)
+    replicate(n) do
+        mod = simulate!(rng, mod, β = β, σ = σ, θ = θ)
+        refit!(mod)
+        ct = coeftable(mod)
+        (
+         z = ct.cols[3],
+         p = ct.cols[ct.pvalcol],
+        )
+    end
+end
+
+```
+
+# Existing Data
+
+Load existing data from this morning's tutorial. Set the contrasts and run model 4.
+
+```{julia;label=load-data}
+# load data
+kb07 = load("data/kb07_exp2_rt.rds");
+
+# set contrasts
+const HC = HelmertCoding();
+const contrasts = Dict(:spkr => HC, :prec => HC, :load=> HC);
+
+# define formula
+f4 = @formula(rt_trunc ~ 1 + spkr+prec+load + (1|subj) + (1+prec|item));
+
+# fit model
+m4 = fit(MixedModel, f4, kb07, contrasts=contrasts)
+```
+
+## Bootstrap estimates
+
+Use the `parametricbootstrap()` function to run 1000 iterations of data sampled 
+using the parameters from `m4`.
+
+```{julia}
+rnd = MersenneTwister(8675309);
+
+b4 = parametricbootstrap(rnd, 1000, m4);
+
+reduce(hcat, b4.β)' |> DataFrame
+```
+
+## Power calculation
+
+```{julia}
+# run 1000 simulations with original parameters
+p4 = simulate_waldtests(rnd, 1000, m4);
+
+# get a table of p-values
+pvals = columntable(p4).p;
+
+# make array of coefficient names and their power
+power = Dict()
+alpha = 0.05 # justify your alpha
+for (i, nm) in enumerate(coefnames(m4))
+    power[nm] = mean(getindex.(pvals,i) .< alpha)
+end
+power
+
+```
+
+## Change parameters
+
+Let's say we want to check our power to detect effects of spkr, prec, and load 
+that are half the size of our pilot data.
+
+```{julia}
+
+newβ = m4.β
+newβ[2:4] = m4.β[2:4]/2
+
+p4_half = simulate_waldtests(rnd, 1000, m4, β = newβ);
+
+# get a table of p-values
+pvals = columntable(p4_half).p;
+
+# make array of coefficient names and their power
+power = Dict()
+alpha = 0.05 # justify your alpha
+for (i, nm) in enumerate(coefnames(m4))
+    power[nm] = mean(getindex.(pvals,i) .< alpha)
+end
+power
+
+```
+
+# Simulating Data from Scratch
+
+
+
+## simdat
+
+Custom function for simulating data in julia.
+
+This is for a design with a between-subjects factor of `age` (O or Y) and 
+`sub_n` subjects per group.
+Each subject responsed to `item_n` items. 
+Create a simulated data structure with `simdat(sub_n, item_n)`.
+
+```{julia;label=simdat}
+
+function simdat(sub_n, item_n) 
+
+    ages = vcat(
+        repeat(["O"], sub_n),
+        repeat(["Y"], sub_n)
+    );
+
+    subject = (subj = nlevels(sub_n*2), 
+            age = ages);
+
+    item = (item = nlevels(item_n, "I"),)
+
+    design = factorproduct(item, subject) |>
+        DataFrame;
+
+    dat = @linq design |>
+        transform(dv = randn(sub_n*2*item_n)) |> 
+        pooled!
+end
+
+#dat = simdat(30, 20);
+
+```
+
+## Set up design with R
+
+Or you can use `sim_design()` in {faux} to set up a data structure. 
+Don't worry about setting means and SDs, we'll simulate null effects and 
+add fixed and random effects structures directly to `parametricbootstrap` 
+or `simulate_waldtests`.
+
+```{julia;label=design-r}
+
+R"""
+
+dat <- faux::sim_design(
+    within = list(item = faux::make_id(20, "I")), 
+    between = list(age = c("O", "Y")), 
+    n = 30,
+    dv = "dv", 
+    id = "subj",
+    plot = FALSE, 
+    long = TRUE
+)
+
+""";
+
+
+dat = rcopy(R"dat");
+
+```
+
+## Set up model
+
+```{julia;label=model}
+
+
+f1 = @formula dv ~ 1 + age + (1|item) + (1|subj);
+m1 = fit(MixedModel, f1, dat)
+
+m1.β
+m1.σ
+m1.θ
+
+```
+
+## Simulate
+
+* Set a seed for reproducibility
+* specify new β, σ, and θ
+
+```{julia;label=sim}
+
+rnd = MersenneTwister(8675309);
+
+new_beta = [0, 0.25]
+new_sigma = 1.0
+new_theta = [0.2, 0.2]
+
+b1 = parametricbootstrap(rnd, 1000, m1, 
+                         β = new_beta, 
+                         σ = new_sigma, 
+                         θ = new_theta);
+
+```
+
+
+## Explore simulation output
+
+
+```{julia;results="hidden"}
+age_beta = getindex.(b1.β, 2)
+@rput age_beta;
+
+R"""
+
+library(ggplot2)
+
+ggplot() + geom_density(aes(x = age_beta))
+
+#ggsave("file.png", width = 7, height = 5)
+
+"""
+
+```
+
+![](file.png)
+
+
+## Power
+
+```{julia;label=power}
+
+zp = simulate_waldtests(rnd,1000,m1, 
+                         β = new_beta, 
+                         σ = new_sigma, 
+                         θ = new_theta);
+
+coefnames(m1)
+
+pvals = columntable(zp).p
+
+mean(getindex.(pvals,1) .< 0.05)
+mean(getindex.(pvals,2) .< 0.05)
+
+```
