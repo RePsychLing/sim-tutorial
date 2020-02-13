@@ -21,6 +21,7 @@ using Random, StatsBase # statistical functions
 Function for returning p-values for simulated iterations.
 
 ```{julia;label=simulate_waldtests}
+
 function simulate_waldtests(
     rng::AbstractRNG,
     n::Integer,
@@ -47,6 +48,7 @@ end
 Load existing data from this morning's tutorial. Set the contrasts and run model 4.
 
 ```{julia;label=load-data}
+
 # load data
 kb07 = load("data/kb07_exp2_rt.rds");
 
@@ -59,20 +61,46 @@ f4 = @formula(rt_trunc ~ 1 + spkr+prec+load + (1|subj) + (1+prec|item));
 
 # fit model
 m4 = fit(MixedModel, f4, kb07, contrasts=contrasts)
+
 ```
 
 ## Bootstrap estimates
 
 Use the `parametricbootstrap()` function to run 1000 iterations of data sampled 
-using the parameters from `m4`.
+using the parameters from `m4`. 
+Set up a random seed to make the simulation reproducible. You can use your favourite number.
 
 ```{julia}
+# seed for reproducibility
 rnd = MersenneTwister(8675309);
 
+# run 1000 iterations
 b4 = parametricbootstrap(rnd, 1000, m4);
 
-reduce(hcat, b4.β)' |> DataFrame
+beta_df = reduce(hcat, b4.β)' |> DataFrame;
+rename!(beta_df, coefnames(m4));
 ```
+
+```{julia}
+@rput beta_df;
+
+R"""
+
+library(tidyverse)
+
+beta_df %>%
+    mutate(iter = row_number()) %>%
+    gather(var, val, 1:4) %>%
+    ggplot(aes(val, color = var)) +
+    geom_density() +
+    facet_wrap(~var)
+
+ggsave("betas.png")
+
+"""
+```
+
+![](betas.png)
 
 ## Power calculation
 
@@ -233,9 +261,9 @@ library(ggplot2)
 
 ggplot() + geom_density(aes(x = age_beta))
 
-#ggsave("file.png", width = 7, height = 5)
+ggsave("file.png", width = 7, height = 5)
 
-"""
+""";
 
 ```
 
