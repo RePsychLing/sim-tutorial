@@ -672,7 +672,7 @@ div.title {text-align: center;}
 
 </span><span class='hljl-nB'>julia&gt; </span><span class='hljl-k'>using</span><span class='hljl-t'> </span><span class='hljl-n'>DataFrames</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>Tables</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>DataFramesMeta</span><span class='hljl-t'> </span><span class='hljl-cs'># work with data tables</span><span class='hljl-t'>
 
-</span><span class='hljl-nB'>julia&gt; </span><span class='hljl-k'>using</span><span class='hljl-t'> </span><span class='hljl-n'>Random</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>StatsBase</span><span class='hljl-t'> </span><span class='hljl-cs'># statistical functions</span><span class='hljl-t'>s</span>
+</span><span class='hljl-nB'>julia&gt; </span><span class='hljl-k'>using</span><span class='hljl-t'> </span><span class='hljl-n'>Random</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>Statistics</span><span class='hljl-t'> </span><span class='hljl-cs'># statistical functions</span><span class='hljl-t'>s</span>
 </pre>
 
 <h2>simulate_waldtests</h2>
@@ -761,17 +761,18 @@ load: yes         78.5904    16.0785   4.88792   &lt;1e-5
 </span><span class='hljl-n'>rnd</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>MersenneTwister</span><span class='hljl-p'>(</span><span class='hljl-ni'>8675309</span><span class='hljl-p'>);</span><span class='hljl-t'>
 
 </span><span class='hljl-cs'># run 1000 iterations</span><span class='hljl-t'>
-</span><span class='hljl-n'>b4</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>parametricbootstrap</span><span class='hljl-p'>(</span><span class='hljl-n'>rnd</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>1000</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>m4</span><span class='hljl-p'>);</span><span class='hljl-t'>
-
-</span><span class='hljl-n'>beta_df</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>reduce</span><span class='hljl-p'>(</span><span class='hljl-n'>hcat</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>b4</span><span class='hljl-oB'>.</span><span class='hljl-n'>β</span><span class='hljl-p'>)</span><span class='hljl-oB'>&#39;</span><span class='hljl-t'> </span><span class='hljl-oB'>|&gt;</span><span class='hljl-t'> </span><span class='hljl-n'>DataFrame</span><span class='hljl-p'>;</span><span class='hljl-t'>
-</span><span class='hljl-nf'>rename!</span><span class='hljl-p'>(</span><span class='hljl-n'>beta_df</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nf'>coefnames</span><span class='hljl-p'>(</span><span class='hljl-n'>m4</span><span class='hljl-p'>));</span>
+</span><span class='hljl-n'>b4</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>parametricbootstrap</span><span class='hljl-p'>(</span><span class='hljl-n'>rnd</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>1000</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>m4</span><span class='hljl-p'>);</span>
 </pre>
 
 
 
+<p>Put betas into a data frame and send to R for plotting in ggplot.</p>
+
 
 <pre class='hljl'>
-<span class='hljl-nd'>@rput</span><span class='hljl-t'> </span><span class='hljl-n'>beta_df</span><span class='hljl-p'>;</span><span class='hljl-t'>
+<span class='hljl-n'>beta_df</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>reduce</span><span class='hljl-p'>(</span><span class='hljl-n'>hcat</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>b4</span><span class='hljl-oB'>.</span><span class='hljl-n'>β</span><span class='hljl-p'>)</span><span class='hljl-oB'>&#39;</span><span class='hljl-t'> </span><span class='hljl-oB'>|&gt;</span><span class='hljl-t'> </span><span class='hljl-n'>DataFrame</span><span class='hljl-p'>;</span><span class='hljl-t'>
+</span><span class='hljl-nf'>rename!</span><span class='hljl-p'>(</span><span class='hljl-n'>beta_df</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nf'>coefnames</span><span class='hljl-p'>(</span><span class='hljl-n'>m4</span><span class='hljl-p'>));</span><span class='hljl-t'>
+</span><span class='hljl-nd'>@rput</span><span class='hljl-t'> </span><span class='hljl-n'>beta_df</span><span class='hljl-p'>;</span><span class='hljl-t'>
 
 </span><span class='hljl-so'>R&quot;&quot;&quot;
 
@@ -784,15 +785,16 @@ beta_df %&gt;%
     geom_density() +
     facet_wrap(~var)
 
-ggsave(&quot;betas.png&quot;)
+ggsave(&quot;figs/betas.png&quot;)
 
 &quot;&quot;&quot;</span>
 </pre>
 
 
-<pre class="output">
-RObject&#123;NilSxp&#125;
-NULL
+<pre class="julia-error">
+ERROR: REvalError: Saving 7 x 7 in image
+Error in grDevices::dev.off&#40;&#41; : 
+  QuartzBitmap_Output - unable to open file &#39;figs/betas.png&#39;
 </pre>
 
 
@@ -855,6 +857,37 @@ Dict&#123;Any,Any&#125; with 4 entries:
   &quot;prec: maintain&quot; &#61;&gt; 0.945
   &quot;&#40;Intercept&#41;&quot;    &#61;&gt; 1.0
   &quot;load: yes&quot;      &#61;&gt; 0.707
+</pre>
+
+
+
+<pre class='hljl'>
+<span class='hljl-cs'># or send data frame of p-values to R</span><span class='hljl-t'>
+</span><span class='hljl-n'>pvals_df</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>reduce</span><span class='hljl-p'>(</span><span class='hljl-n'>hcat</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>pvals</span><span class='hljl-p'>)</span><span class='hljl-oB'>&#39;</span><span class='hljl-t'> </span><span class='hljl-oB'>|&gt;</span><span class='hljl-t'> </span><span class='hljl-n'>DataFrame</span><span class='hljl-p'>;</span><span class='hljl-t'>
+</span><span class='hljl-nf'>rename!</span><span class='hljl-p'>(</span><span class='hljl-n'>pvals_df</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nf'>coefnames</span><span class='hljl-p'>(</span><span class='hljl-n'>m4</span><span class='hljl-p'>));</span><span class='hljl-t'>
+</span><span class='hljl-nd'>@rput</span><span class='hljl-t'> </span><span class='hljl-n'>pvals_df</span><span class='hljl-t'>
+
+</span><span class='hljl-so'>R&quot;&quot;&quot;
+
+pvals_df %&gt;%
+    mutate(iter = row_number()) %&gt;%
+    gather(effect, p, 1:4) %&gt;%
+    group_by(effect) %&gt;%
+    summarise(power = mean(p &lt; .05))
+
+&quot;&quot;&quot;</span>
+</pre>
+
+
+<pre class="output">
+RObject&#123;VecSxp&#125;
+# A tibble: 4 x 2
+  effect         power
+  &lt;chr&gt;          &lt;dbl&gt;
+1 &#40;Intercept&#41;    1    
+2 load: yes      0.707
+3 prec: maintain 0.945
+4 spkr: old      0.533
 </pre>
 
 
@@ -930,8 +963,8 @@ dat &lt;- faux::sim_design(
 
 <pre class="output">
 2-element Array&#123;Float64,1&#125;:
- 0.03530723685280526
- 0.04973118654478417
+ 0.0                
+ 0.04913130374947172
 </pre>
 
 

@@ -2,8 +2,6 @@
 title: "Simulation Tutorial"
 author: "Lisa DeBruine"
 date: 2020-02-13
-options:
-    line_width: 70
 ---
 
 ## Packages 
@@ -13,7 +11,7 @@ using MixedModels       # run mixed MixedModels
 using MixedModelsSim    # simulation functions for mixed models
 using RCall, RData      # call R functions from inside Julia
 using DataFrames, Tables, DataFramesMeta # work with data tables
-using Random, StatsBase # statistical functions
+using Random, Statistics # statistical functions
 ```
 
 ## simulate_waldtests
@@ -77,11 +75,13 @@ rnd = MersenneTwister(8675309);
 # run 1000 iterations
 b4 = parametricbootstrap(rnd, 1000, m4);
 
-beta_df = reduce(hcat, b4.β)' |> DataFrame;
-rename!(beta_df, coefnames(m4));
 ```
 
+Put betas into a data frame and send to R for plotting in ggplot.
+
 ```{julia}
+beta_df = reduce(hcat, b4.β)' |> DataFrame;
+rename!(beta_df, coefnames(m4));
 @rput beta_df;
 
 R"""
@@ -95,7 +95,7 @@ beta_df %>%
     geom_density() +
     facet_wrap(~var)
 
-ggsave("betas.png")
+ggsave("figs/betas.png")
 
 """
 ```
@@ -143,6 +143,26 @@ for (i, nm) in enumerate(coefnames(m4))
     power[nm] = mean(getindex.(pvals,i) .< alpha)
 end
 power
+
+```
+
+
+```{julia}
+
+# or send data frame of p-values to R
+pvals_df = reduce(hcat, pvals)' |> DataFrame;
+rename!(pvals_df, coefnames(m4));
+@rput pvals_df
+
+R"""
+
+pvals_df %>%
+    mutate(iter = row_number()) %>%
+    gather(effect, p, 1:4) %>%
+    group_by(effect) %>%
+    summarise(power = mean(p < .05))
+
+"""
 
 ```
 
