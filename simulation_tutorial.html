@@ -662,20 +662,47 @@ div.title {text-align: center;}
           </div>
 
           <h2>Packages</h2>
+<h3>Julia</h3>
 
 <pre class='hljl'>
-<span class='hljl-nB'>julia&gt; </span><span class='hljl-k'>using</span><span class='hljl-t'> </span><span class='hljl-n'>MixedModels</span><span class='hljl-t'>       </span><span class='hljl-cs'># run mixed MixedModels</span><span class='hljl-t'>
+<span class='hljl-nB'>julia&gt; </span><span class='hljl-k'>using</span><span class='hljl-t'> </span><span class='hljl-n'>MixedModels</span><span class='hljl-t'>        </span><span class='hljl-cs'># run mixed models</span><span class='hljl-t'>
 
-</span><span class='hljl-nB'>julia&gt; </span><span class='hljl-k'>using</span><span class='hljl-t'> </span><span class='hljl-n'>MixedModelsSim</span><span class='hljl-t'>    </span><span class='hljl-cs'># simulation functions for mixed models</span><span class='hljl-t'>
+</span><span class='hljl-nB'>julia&gt; </span><span class='hljl-k'>using</span><span class='hljl-t'> </span><span class='hljl-n'>MixedModelsSim</span><span class='hljl-t'>     </span><span class='hljl-cs'># simulation functions for mixed models</span><span class='hljl-t'>
 
-</span><span class='hljl-nB'>julia&gt; </span><span class='hljl-k'>using</span><span class='hljl-t'> </span><span class='hljl-n'>RCall</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>RData</span><span class='hljl-t'>      </span><span class='hljl-cs'># call R functions from inside Julia</span><span class='hljl-t'>
+</span><span class='hljl-nB'>julia&gt; </span><span class='hljl-k'>using</span><span class='hljl-t'> </span><span class='hljl-n'>RCall</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>RData</span><span class='hljl-t'>       </span><span class='hljl-cs'># call R functions from inside Julia</span><span class='hljl-t'>
 
 </span><span class='hljl-nB'>julia&gt; </span><span class='hljl-k'>using</span><span class='hljl-t'> </span><span class='hljl-n'>DataFrames</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>Tables</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>DataFramesMeta</span><span class='hljl-t'> </span><span class='hljl-cs'># work with data tables</span><span class='hljl-t'>
 
-</span><span class='hljl-nB'>julia&gt; </span><span class='hljl-k'>using</span><span class='hljl-t'> </span><span class='hljl-n'>Random</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>Statistics</span><span class='hljl-t'> </span><span class='hljl-cs'># statistical functions</span><span class='hljl-t'>s</span>
+</span><span class='hljl-nB'>julia&gt; </span><span class='hljl-k'>using</span><span class='hljl-t'> </span><span class='hljl-n'>Random</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>Statistics</span><span class='hljl-t'> </span><span class='hljl-cs'># statistical functions</span><span class='hljl-t'>
+
+</span><span class='hljl-nB'>julia&gt; </span><span class='hljl-k'>using</span><span class='hljl-t'> </span><span class='hljl-n'>CSV</span><span class='hljl-t'>                </span><span class='hljl-cs'># write CSV files</span><span class='hljl-t'>s</span>
 </pre>
 
-<h2>simulate_waldtests</h2>
+<h3>R</h3>
+
+
+<pre class='hljl'>
+<span class='hljl-so'>R&quot;&quot;&quot;
+library(tidyverse) # for visualisation and data wrangling
+&quot;&quot;&quot;</span><span class='hljl-p'>;</span>
+</pre>
+
+
+
+<h2>Define Custom functions</h2>
+
+
+<pre class='hljl'>
+<span class='hljl-n'>nsims</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-ni'>1000</span><span class='hljl-t'> </span><span class='hljl-cs'># set to a low number for test, high for production</span>
+</pre>
+
+
+<pre class="output">
+1000
+</pre>
+
+
+<h3>simulate_waldtests</h3>
 <p>Function for returning p-values for simulated iterations.</p>
 
 
@@ -686,15 +713,37 @@ div.title {text-align: center;}
     </span><span class='hljl-n'>morig</span><span class='hljl-oB'>::</span><span class='hljl-nf'>MixedModel</span><span class='hljl-p'>{</span><span class='hljl-n'>T</span><span class='hljl-p'>};</span><span class='hljl-t'>
     </span><span class='hljl-n'>β</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>morig</span><span class='hljl-oB'>.</span><span class='hljl-n'>β</span><span class='hljl-p'>,</span><span class='hljl-t'>
     </span><span class='hljl-n'>σ</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>morig</span><span class='hljl-oB'>.</span><span class='hljl-n'>σ</span><span class='hljl-p'>,</span><span class='hljl-t'>
-    </span><span class='hljl-n'>θ</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>morig</span><span class='hljl-oB'>.</span><span class='hljl-n'>θ</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-n'>where</span><span class='hljl-t'> </span><span class='hljl-p'>{</span><span class='hljl-n'>T</span><span class='hljl-p'>}</span><span class='hljl-t'>
-    </span><span class='hljl-n'>mod</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>deepcopy</span><span class='hljl-p'>(</span><span class='hljl-n'>morig</span><span class='hljl-p'>)</span><span class='hljl-t'>
-    </span><span class='hljl-nf'>replicate</span><span class='hljl-p'>(</span><span class='hljl-n'>n</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-k'>do</span><span class='hljl-t'>
+    </span><span class='hljl-n'>θ</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>morig</span><span class='hljl-oB'>.</span><span class='hljl-n'>θ</span><span class='hljl-p'>,</span><span class='hljl-t'>
+    </span><span class='hljl-n'>use_threads</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-kc'>false</span><span class='hljl-p'>,</span><span class='hljl-t'>
+</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-n'>where</span><span class='hljl-t'> </span><span class='hljl-p'>{</span><span class='hljl-n'>T</span><span class='hljl-p'>}</span><span class='hljl-t'>
+    </span><span class='hljl-n'>zval</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>pval</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>nβ</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>m</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>similar</span><span class='hljl-p'>(</span><span class='hljl-n'>β</span><span class='hljl-p'>),</span><span class='hljl-t'> </span><span class='hljl-nf'>similar</span><span class='hljl-p'>(</span><span class='hljl-n'>β</span><span class='hljl-p'>),</span><span class='hljl-t'> </span><span class='hljl-nf'>length</span><span class='hljl-p'>(</span><span class='hljl-n'>β</span><span class='hljl-p'>),</span><span class='hljl-t'> </span><span class='hljl-nf'>deepcopy</span><span class='hljl-p'>(</span><span class='hljl-n'>morig</span><span class='hljl-p'>)</span><span class='hljl-t'>
+    </span><span class='hljl-n'>y₀</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>copy</span><span class='hljl-p'>(</span><span class='hljl-nf'>response</span><span class='hljl-p'>(</span><span class='hljl-n'>m</span><span class='hljl-p'>))</span><span class='hljl-t'>
+    </span><span class='hljl-cs'># we need to do for in-place operations to work across threads</span><span class='hljl-t'>
+    </span><span class='hljl-n'>m_threads</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>[</span><span class='hljl-n'>m</span><span class='hljl-p'>]</span><span class='hljl-t'>
+    </span><span class='hljl-n'>zval_threads</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>[</span><span class='hljl-n'>zval</span><span class='hljl-p'>]</span><span class='hljl-t'>
+    </span><span class='hljl-n'>pval_threads</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>[</span><span class='hljl-n'>pval</span><span class='hljl-p'>]</span><span class='hljl-t'>
+
+    </span><span class='hljl-k'>if</span><span class='hljl-t'> </span><span class='hljl-n'>use_threads</span><span class='hljl-t'>
+        </span><span class='hljl-n'>Threads</span><span class='hljl-oB'>.</span><span class='hljl-nf'>resize_nthreads!</span><span class='hljl-p'>(</span><span class='hljl-n'>m_threads</span><span class='hljl-p'>)</span><span class='hljl-t'>
+        </span><span class='hljl-n'>Threads</span><span class='hljl-oB'>.</span><span class='hljl-nf'>resize_nthreads!</span><span class='hljl-p'>(</span><span class='hljl-n'>zval_threads</span><span class='hljl-p'>)</span><span class='hljl-t'>
+        </span><span class='hljl-n'>Threads</span><span class='hljl-oB'>.</span><span class='hljl-nf'>resize_nthreads!</span><span class='hljl-p'>(</span><span class='hljl-n'>pval_threads</span><span class='hljl-p'>)</span><span class='hljl-t'>
+    </span><span class='hljl-k'>end</span><span class='hljl-t'>
+
+    </span><span class='hljl-n'>rnglock</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>ReentrantLock</span><span class='hljl-p'>()</span><span class='hljl-t'>
+    </span><span class='hljl-nf'>replicate</span><span class='hljl-p'>(</span><span class='hljl-n'>n</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>use_threads</span><span class='hljl-oB'>=</span><span class='hljl-n'>use_threads</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-k'>do</span><span class='hljl-t'>
+        </span><span class='hljl-n'>mod</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>m_threads</span><span class='hljl-p'>[</span><span class='hljl-n'>Threads</span><span class='hljl-oB'>.</span><span class='hljl-nf'>threadid</span><span class='hljl-p'>()]</span><span class='hljl-t'>
+        </span><span class='hljl-kd'>local</span><span class='hljl-t'> </span><span class='hljl-n'>zval</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>zval_threads</span><span class='hljl-p'>[</span><span class='hljl-n'>Threads</span><span class='hljl-oB'>.</span><span class='hljl-nf'>threadid</span><span class='hljl-p'>()]</span><span class='hljl-t'>
+        </span><span class='hljl-kd'>local</span><span class='hljl-t'> </span><span class='hljl-n'>pval</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>pval_threads</span><span class='hljl-p'>[</span><span class='hljl-n'>Threads</span><span class='hljl-oB'>.</span><span class='hljl-nf'>threadid</span><span class='hljl-p'>()]</span><span class='hljl-t'>
+        </span><span class='hljl-nf'>lock</span><span class='hljl-p'>(</span><span class='hljl-n'>rnglock</span><span class='hljl-p'>)</span><span class='hljl-t'>
         </span><span class='hljl-n'>mod</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>simulate!</span><span class='hljl-p'>(</span><span class='hljl-n'>rng</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>mod</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>β</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>β</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>σ</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>σ</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>θ</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>θ</span><span class='hljl-p'>)</span><span class='hljl-t'>
+        </span><span class='hljl-nf'>unlock</span><span class='hljl-p'>(</span><span class='hljl-n'>rnglock</span><span class='hljl-p'>)</span><span class='hljl-t'>
         </span><span class='hljl-nf'>refit!</span><span class='hljl-p'>(</span><span class='hljl-n'>mod</span><span class='hljl-p'>)</span><span class='hljl-t'>
         </span><span class='hljl-n'>ct</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>coeftable</span><span class='hljl-p'>(</span><span class='hljl-n'>mod</span><span class='hljl-p'>)</span><span class='hljl-t'>
         </span><span class='hljl-p'>(</span><span class='hljl-t'>
+         </span><span class='hljl-n'>beta</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>ct</span><span class='hljl-oB'>.</span><span class='hljl-n'>cols</span><span class='hljl-p'>[</span><span class='hljl-ni'>1</span><span class='hljl-p'>],</span><span class='hljl-t'>
+         </span><span class='hljl-n'>se</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>ct</span><span class='hljl-oB'>.</span><span class='hljl-n'>cols</span><span class='hljl-p'>[</span><span class='hljl-ni'>2</span><span class='hljl-p'>],</span><span class='hljl-t'>
          </span><span class='hljl-n'>z</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>ct</span><span class='hljl-oB'>.</span><span class='hljl-n'>cols</span><span class='hljl-p'>[</span><span class='hljl-ni'>3</span><span class='hljl-p'>],</span><span class='hljl-t'>
-         </span><span class='hljl-n'>p</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>ct</span><span class='hljl-oB'>.</span><span class='hljl-n'>cols</span><span class='hljl-p'>[</span><span class='hljl-n'>ct</span><span class='hljl-oB'>.</span><span class='hljl-n'>pvalcol</span><span class='hljl-p'>],</span><span class='hljl-t'>
+         </span><span class='hljl-n'>p</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>ct</span><span class='hljl-oB'>.</span><span class='hljl-n'>cols</span><span class='hljl-p'>[</span><span class='hljl-ni'>4</span><span class='hljl-p'>],</span><span class='hljl-t'>
         </span><span class='hljl-p'>)</span><span class='hljl-t'>
     </span><span class='hljl-k'>end</span><span class='hljl-t'>
 </span><span class='hljl-k'>end</span>
@@ -706,13 +755,75 @@ simulate_waldtests &#40;generic function with 1 method&#41;
 </pre>
 
 
+<h3>ggplot_betas</h3>
+
+
+<pre class='hljl'>
+<span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>ggplot_betas</span><span class='hljl-p'>(</span><span class='hljl-n'>sim</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>colnames</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>figname</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-s'>&quot;betas.png&quot;</span><span class='hljl-p'>)</span><span class='hljl-t'> 
+    </span><span class='hljl-n'>beta_df</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>reduce</span><span class='hljl-p'>(</span><span class='hljl-n'>hcat</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nf'>columntable</span><span class='hljl-p'>(</span><span class='hljl-n'>sim</span><span class='hljl-p'>)</span><span class='hljl-oB'>.</span><span class='hljl-n'>beta</span><span class='hljl-p'>)</span><span class='hljl-oB'>&#39;</span><span class='hljl-t'> </span><span class='hljl-oB'>|&gt;</span><span class='hljl-t'> </span><span class='hljl-n'>DataFrame</span><span class='hljl-p'>;</span><span class='hljl-t'>
+    </span><span class='hljl-n'>coln</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>ncol</span><span class='hljl-p'>(</span><span class='hljl-n'>beta_df</span><span class='hljl-p'>);</span><span class='hljl-t'>
+    </span><span class='hljl-k'>if</span><span class='hljl-t'> </span><span class='hljl-nf'>isa</span><span class='hljl-p'>(</span><span class='hljl-n'>colnames</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>Nothing</span><span class='hljl-p'>)</span><span class='hljl-t'>
+        </span><span class='hljl-n'>colnames</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>string</span><span class='hljl-oB'>.</span><span class='hljl-p'>(</span><span class='hljl-s'>&quot;Eff&quot;</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-n'>coln</span><span class='hljl-p'>);</span><span class='hljl-t'>
+    </span><span class='hljl-k'>end</span><span class='hljl-t'>
+    </span><span class='hljl-nf'>rename!</span><span class='hljl-p'>(</span><span class='hljl-n'>beta_df</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>colnames</span><span class='hljl-p'>);</span><span class='hljl-t'>
+    </span><span class='hljl-nd'>@rput</span><span class='hljl-t'> </span><span class='hljl-n'>beta_df</span><span class='hljl-p'>;</span><span class='hljl-t'>
+    </span><span class='hljl-nd'>@rput</span><span class='hljl-t'> </span><span class='hljl-n'>figname</span><span class='hljl-p'>;</span><span class='hljl-t'>
+
+    </span><span class='hljl-so'>R&quot;&quot;&quot;
+        beta_df %&gt;%
+            gather(var, val, 1:ncol(.)) %&gt;%
+            ggplot(aes(val, color = var)) +
+            geom_density(show.legend = FALSE) +
+            facet_wrap(~var, scales = &quot;free&quot;)
+
+        ggsave(figname)
+    &quot;&quot;&quot;</span><span class='hljl-p'>;</span><span class='hljl-t'>
+
+    </span><span class='hljl-s'>&quot;![](&quot;</span><span class='hljl-oB'>*</span><span class='hljl-n'>figname</span><span class='hljl-oB'>*</span><span class='hljl-s'>&quot;)&quot;</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span>
+</pre>
+
+
+<pre class="output">
+ggplot_betas &#40;generic function with 2 methods&#41;
+</pre>
+
+
+<h3>power</h3>
+
+
+<pre class='hljl'>
+<span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>power_table</span><span class='hljl-p'>(</span><span class='hljl-n'>sim</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>colnames</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>alpha</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nfB'>0.05</span><span class='hljl-p'>)</span><span class='hljl-t'>
+    </span><span class='hljl-n'>pvals</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>columntable</span><span class='hljl-p'>(</span><span class='hljl-n'>sim</span><span class='hljl-p'>)</span><span class='hljl-oB'>.</span><span class='hljl-n'>p</span><span class='hljl-p'>;</span><span class='hljl-t'>
+
+    </span><span class='hljl-n'>coln</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>length</span><span class='hljl-p'>(</span><span class='hljl-n'>pvals</span><span class='hljl-p'>[</span><span class='hljl-ni'>1</span><span class='hljl-p'>]);</span><span class='hljl-t'>
+    </span><span class='hljl-k'>if</span><span class='hljl-t'> </span><span class='hljl-nf'>isa</span><span class='hljl-p'>(</span><span class='hljl-n'>colnames</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>Nothing</span><span class='hljl-p'>)</span><span class='hljl-t'>
+        </span><span class='hljl-n'>colnames</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>string</span><span class='hljl-oB'>.</span><span class='hljl-p'>(</span><span class='hljl-s'>&quot;Eff&quot;</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-n'>coln</span><span class='hljl-p'>)</span><span class='hljl-t'>
+    </span><span class='hljl-k'>end</span><span class='hljl-t'>
+    
+    </span><span class='hljl-n'>power</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Dict</span><span class='hljl-p'>();</span><span class='hljl-t'>
+    </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-n'>coln</span><span class='hljl-t'>
+        </span><span class='hljl-n'>power</span><span class='hljl-p'>[</span><span class='hljl-n'>colnames</span><span class='hljl-p'>[</span><span class='hljl-n'>i</span><span class='hljl-p'>]]</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>mean</span><span class='hljl-p'>(</span><span class='hljl-n'>getindex</span><span class='hljl-oB'>.</span><span class='hljl-p'>(</span><span class='hljl-n'>pvals</span><span class='hljl-p'>,</span><span class='hljl-n'>i</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>.&lt;</span><span class='hljl-t'> </span><span class='hljl-n'>alpha</span><span class='hljl-p'>)</span><span class='hljl-t'>
+    </span><span class='hljl-k'>end</span><span class='hljl-t'>
+    
+    </span><span class='hljl-nf'>sort</span><span class='hljl-p'>(</span><span class='hljl-n'>power</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span>
+</pre>
+
+
+<pre class="output">
+power_table &#40;generic function with 2 methods&#41;
+</pre>
+
+
 <h1>Existing Data</h1>
 <p>Load existing data from this morning&#39;s tutorial. Set the contrasts and run model 4.</p>
 
 
 <pre class='hljl'>
 <span class='hljl-cs'># load data</span><span class='hljl-t'>
-</span><span class='hljl-n'>kb07</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>load</span><span class='hljl-p'>(</span><span class='hljl-s'>&quot;data/kb07_exp2_rt.rds&quot;</span><span class='hljl-p'>);</span><span class='hljl-t'>
+</span><span class='hljl-cs'># kb07 = load(&quot;data/kb07_exp2_rt.rds&quot;);</span><span class='hljl-t'>
+</span><span class='hljl-n'>kb07</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>MixedModels</span><span class='hljl-oB'>.</span><span class='hljl-nf'>dataset</span><span class='hljl-p'>(</span><span class='hljl-s'>&quot;kb07&quot;</span><span class='hljl-p'>);</span><span class='hljl-t'>
 
 </span><span class='hljl-cs'># set contrasts</span><span class='hljl-t'>
 </span><span class='hljl-kd'>const</span><span class='hljl-t'> </span><span class='hljl-n'>HC</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>HelmertCoding</span><span class='hljl-p'>();</span><span class='hljl-t'>
@@ -741,19 +852,19 @@ Residual                 462443.388 680.03190
  Number of obs: 1789; levels of grouping factors: 32, 56
 
   Fixed-effects parameters:
-───────────────────────────────────────────────────────
-                 Estimate  Std.Error   z value  P&#40;&gt;|z|&#41;
-───────────────────────────────────────────────────────
-&#40;Intercept&#41;     2181.85      77.4681  28.1645    &lt;1e-99
-spkr: old         67.879     16.0785   4.22172   &lt;1e-4 
-prec: maintain  -333.791     47.4472  -7.03499   &lt;1e-11
-load: yes         78.5904    16.0785   4.88792   &lt;1e-5 
-───────────────────────────────────────────────────────
+──────────────────────────────────────────────────────
+                 Estimate  Std.Error  z value  P&#40;&gt;|z|&#41;
+──────────────────────────────────────────────────────
+&#40;Intercept&#41;     2181.85      77.4681    28.16   &lt;1e-99
+spkr: old         67.879     16.0785     4.22   &lt;1e-4 
+prec: maintain  -333.791     47.4472    -7.03   &lt;1e-11
+load: yes         78.5904    16.0785     4.89   &lt;1e-5 
+──────────────────────────────────────────────────────
 </pre>
 
 
 <h2>Bootstrap estimates</h2>
-<p>Use the <code>parametricbootstrap&#40;&#41;</code> function to run 1000 iterations of data sampled  using the parameters from <code>m4</code>.  Set up a random seed to make the simulation reproducible. You can use your favourite number.</p>
+<p>Use the <code>simulate_waldtests&#40;&#41;</code> function to run 1000 iterations of data sampled  using the parameters from <code>m4</code>.  Set up a random seed to make the simulation reproducible. You can use your favourite number.</p>
 
 
 <pre class='hljl'>
@@ -761,7 +872,7 @@ load: yes         78.5904    16.0785   4.88792   &lt;1e-5
 </span><span class='hljl-n'>rnd</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>MersenneTwister</span><span class='hljl-p'>(</span><span class='hljl-ni'>8675309</span><span class='hljl-p'>);</span><span class='hljl-t'>
 
 </span><span class='hljl-cs'># run 1000 iterations</span><span class='hljl-t'>
-</span><span class='hljl-n'>b4</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>parametricbootstrap</span><span class='hljl-p'>(</span><span class='hljl-n'>rnd</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>1000</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>m4</span><span class='hljl-p'>);</span>
+</span><span class='hljl-n'>sim4</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>simulate_waldtests</span><span class='hljl-p'>(</span><span class='hljl-n'>rnd</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>nsims</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>m4</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>use_threads</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-kc'>true</span><span class='hljl-p'>);</span>
 </pre>
 
 
@@ -770,32 +881,11 @@ load: yes         78.5904    16.0785   4.88792   &lt;1e-5
 
 
 <pre class='hljl'>
-<span class='hljl-n'>beta_df</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>reduce</span><span class='hljl-p'>(</span><span class='hljl-n'>hcat</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>b4</span><span class='hljl-oB'>.</span><span class='hljl-n'>β</span><span class='hljl-p'>)</span><span class='hljl-oB'>&#39;</span><span class='hljl-t'> </span><span class='hljl-oB'>|&gt;</span><span class='hljl-t'> </span><span class='hljl-n'>DataFrame</span><span class='hljl-p'>;</span><span class='hljl-t'>
-</span><span class='hljl-nf'>rename!</span><span class='hljl-p'>(</span><span class='hljl-n'>beta_df</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nf'>coefnames</span><span class='hljl-p'>(</span><span class='hljl-n'>m4</span><span class='hljl-p'>));</span><span class='hljl-t'>
-</span><span class='hljl-nd'>@rput</span><span class='hljl-t'> </span><span class='hljl-n'>beta_df</span><span class='hljl-p'>;</span><span class='hljl-t'>
+<span class='hljl-n'>m4_names</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>coefnames</span><span class='hljl-p'>(</span><span class='hljl-n'>m4</span><span class='hljl-p'>)</span><span class='hljl-t'>
 
-</span><span class='hljl-so'>R&quot;&quot;&quot;
-
-library(tidyverse)
-
-beta_df %&gt;%
-    mutate(iter = row_number()) %&gt;%
-    gather(var, val, 1:4) %&gt;%
-    ggplot(aes(val, color = var)) +
-    geom_density() +
-    facet_wrap(~var)
-
-ggsave(&quot;figs/betas.png&quot;)
-
-&quot;&quot;&quot;</span>
+</span><span class='hljl-nf'>ggplot_betas</span><span class='hljl-p'>(</span><span class='hljl-n'>sim4</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>m4_names</span><span class='hljl-p'>);</span>
 </pre>
 
-
-<pre class="julia-error">
-ERROR: REvalError: Saving 7 x 7 in image
-Error in grDevices::dev.off&#40;&#41; : 
-  QuartzBitmap_Output - unable to open file &#39;figs/betas.png&#39;
-</pre>
 
 
 <p><img src="betas.png" alt="" /></p>
@@ -803,28 +893,16 @@ Error in grDevices::dev.off&#40;&#41; :
 
 
 <pre class='hljl'>
-<span class='hljl-cs'># run 1000 simulations with original parameters</span><span class='hljl-t'>
-</span><span class='hljl-n'>p4</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>simulate_waldtests</span><span class='hljl-p'>(</span><span class='hljl-n'>rnd</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>1000</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>m4</span><span class='hljl-p'>);</span><span class='hljl-t'>
-
-</span><span class='hljl-cs'># get a table of p-values</span><span class='hljl-t'>
-</span><span class='hljl-n'>pvals</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>columntable</span><span class='hljl-p'>(</span><span class='hljl-n'>p4</span><span class='hljl-p'>)</span><span class='hljl-oB'>.</span><span class='hljl-n'>p</span><span class='hljl-p'>;</span><span class='hljl-t'>
-
-</span><span class='hljl-cs'># make array of coefficient names and their power</span><span class='hljl-t'>
-</span><span class='hljl-n'>power</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Dict</span><span class='hljl-p'>()</span><span class='hljl-t'>
-</span><span class='hljl-n'>alpha</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nfB'>0.05</span><span class='hljl-t'> </span><span class='hljl-cs'># justify your alpha</span><span class='hljl-t'>
-</span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-p'>(</span><span class='hljl-n'>i</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>nm</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-nf'>enumerate</span><span class='hljl-p'>(</span><span class='hljl-nf'>coefnames</span><span class='hljl-p'>(</span><span class='hljl-n'>m4</span><span class='hljl-p'>))</span><span class='hljl-t'>
-    </span><span class='hljl-n'>power</span><span class='hljl-p'>[</span><span class='hljl-n'>nm</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>mean</span><span class='hljl-p'>(</span><span class='hljl-n'>getindex</span><span class='hljl-oB'>.</span><span class='hljl-p'>(</span><span class='hljl-n'>pvals</span><span class='hljl-p'>,</span><span class='hljl-n'>i</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>.&lt;</span><span class='hljl-t'> </span><span class='hljl-n'>alpha</span><span class='hljl-p'>)</span><span class='hljl-t'>
-</span><span class='hljl-k'>end</span><span class='hljl-t'>
-</span><span class='hljl-n'>power</span>
+<span class='hljl-nf'>power_table</span><span class='hljl-p'>(</span><span class='hljl-n'>sim4</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>m4_names</span><span class='hljl-p'>)</span>
 </pre>
 
 
 <pre class="output">
-Dict&#123;Any,Any&#125; with 4 entries:
-  &quot;spkr: old&quot;      &#61;&gt; 0.99
-  &quot;prec: maintain&quot; &#61;&gt; 1.0
+OrderedCollections.OrderedDict&#123;Any,Any&#125; with 4 entries:
   &quot;&#40;Intercept&#41;&quot;    &#61;&gt; 1.0
-  &quot;load: yes&quot;      &#61;&gt; 1.0
+  &quot;load: yes&quot;      &#61;&gt; 0.999
+  &quot;prec: maintain&quot; &#61;&gt; 1.0
+  &quot;spkr: old&quot;      &#61;&gt; 0.991
 </pre>
 
 
@@ -836,65 +914,25 @@ Dict&#123;Any,Any&#125; with 4 entries:
 <span class='hljl-n'>newβ</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>m4</span><span class='hljl-oB'>.</span><span class='hljl-n'>β</span><span class='hljl-t'>
 </span><span class='hljl-n'>newβ</span><span class='hljl-p'>[</span><span class='hljl-ni'>2</span><span class='hljl-oB'>:</span><span class='hljl-ni'>4</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>m4</span><span class='hljl-oB'>.</span><span class='hljl-n'>β</span><span class='hljl-p'>[</span><span class='hljl-ni'>2</span><span class='hljl-oB'>:</span><span class='hljl-ni'>4</span><span class='hljl-p'>]</span><span class='hljl-oB'>/</span><span class='hljl-ni'>2</span><span class='hljl-t'>
 
-</span><span class='hljl-n'>p4_half</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>simulate_waldtests</span><span class='hljl-p'>(</span><span class='hljl-n'>rnd</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>1000</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>m4</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>β</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>newβ</span><span class='hljl-p'>);</span><span class='hljl-t'>
+</span><span class='hljl-n'>sim4_half</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>simulate_waldtests</span><span class='hljl-p'>(</span><span class='hljl-n'>rnd</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>nsims</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>m4</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>β</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>newβ</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>use_threads</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-kc'>true</span><span class='hljl-p'>);</span><span class='hljl-t'>
 
-</span><span class='hljl-cs'># get a table of p-values</span><span class='hljl-t'>
-</span><span class='hljl-n'>pvals</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>columntable</span><span class='hljl-p'>(</span><span class='hljl-n'>p4_half</span><span class='hljl-p'>)</span><span class='hljl-oB'>.</span><span class='hljl-n'>p</span><span class='hljl-p'>;</span><span class='hljl-t'>
-
-</span><span class='hljl-cs'># make array of coefficient names and their power</span><span class='hljl-t'>
-</span><span class='hljl-n'>power</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Dict</span><span class='hljl-p'>()</span><span class='hljl-t'>
-</span><span class='hljl-n'>alpha</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nfB'>0.05</span><span class='hljl-t'> </span><span class='hljl-cs'># justify your alpha</span><span class='hljl-t'>
-</span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-p'>(</span><span class='hljl-n'>i</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>nm</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-nf'>enumerate</span><span class='hljl-p'>(</span><span class='hljl-nf'>coefnames</span><span class='hljl-p'>(</span><span class='hljl-n'>m4</span><span class='hljl-p'>))</span><span class='hljl-t'>
-    </span><span class='hljl-n'>power</span><span class='hljl-p'>[</span><span class='hljl-n'>nm</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>mean</span><span class='hljl-p'>(</span><span class='hljl-n'>getindex</span><span class='hljl-oB'>.</span><span class='hljl-p'>(</span><span class='hljl-n'>pvals</span><span class='hljl-p'>,</span><span class='hljl-n'>i</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>.&lt;</span><span class='hljl-t'> </span><span class='hljl-n'>alpha</span><span class='hljl-p'>)</span><span class='hljl-t'>
-</span><span class='hljl-k'>end</span><span class='hljl-t'>
-</span><span class='hljl-n'>power</span>
+</span><span class='hljl-nf'>power_table</span><span class='hljl-p'>(</span><span class='hljl-n'>sim4_half</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>m4_names</span><span class='hljl-p'>)</span>
 </pre>
 
 
 <pre class="output">
-Dict&#123;Any,Any&#125; with 4 entries:
-  &quot;spkr: old&quot;      &#61;&gt; 0.533
-  &quot;prec: maintain&quot; &#61;&gt; 0.945
+OrderedCollections.OrderedDict&#123;Any,Any&#125; with 4 entries:
   &quot;&#40;Intercept&#41;&quot;    &#61;&gt; 1.0
-  &quot;load: yes&quot;      &#61;&gt; 0.707
-</pre>
-
-
-
-<pre class='hljl'>
-<span class='hljl-cs'># or send data frame of p-values to R</span><span class='hljl-t'>
-</span><span class='hljl-n'>pvals_df</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>reduce</span><span class='hljl-p'>(</span><span class='hljl-n'>hcat</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>pvals</span><span class='hljl-p'>)</span><span class='hljl-oB'>&#39;</span><span class='hljl-t'> </span><span class='hljl-oB'>|&gt;</span><span class='hljl-t'> </span><span class='hljl-n'>DataFrame</span><span class='hljl-p'>;</span><span class='hljl-t'>
-</span><span class='hljl-nf'>rename!</span><span class='hljl-p'>(</span><span class='hljl-n'>pvals_df</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nf'>coefnames</span><span class='hljl-p'>(</span><span class='hljl-n'>m4</span><span class='hljl-p'>));</span><span class='hljl-t'>
-</span><span class='hljl-nd'>@rput</span><span class='hljl-t'> </span><span class='hljl-n'>pvals_df</span><span class='hljl-t'>
-
-</span><span class='hljl-so'>R&quot;&quot;&quot;
-
-pvals_df %&gt;%
-    mutate(iter = row_number()) %&gt;%
-    gather(effect, p, 1:4) %&gt;%
-    group_by(effect) %&gt;%
-    summarise(power = mean(p &lt; .05))
-
-&quot;&quot;&quot;</span>
-</pre>
-
-
-<pre class="output">
-RObject&#123;VecSxp&#125;
-# A tibble: 4 x 2
-  effect         power
-  &lt;chr&gt;          &lt;dbl&gt;
-1 &#40;Intercept&#41;    1    
-2 load: yes      0.707
-3 prec: maintain 0.945
-4 spkr: old      0.533
+  &quot;load: yes&quot;      &#61;&gt; 0.692
+  &quot;prec: maintain&quot; &#61;&gt; 0.928
+  &quot;spkr: old&quot;      &#61;&gt; 0.529
 </pre>
 
 
 <h1>Simulating Data from Scratch</h1>
 <h2>simdat</h2>
 <p>Custom function for simulating data in julia.</p>
-<p>This is for a design with a between-subjects factor of <code>age</code> &#40;O or Y&#41; and  <code>sub_n</code> subjects per group. Each subject responsed to <code>item_n</code> items.  Create a simulated data structure with <code>simdat&#40;sub_n, item_n&#41;</code>.</p>
+<p>This is for a design with a between-subjects factor of <code>age</code> &#40;O or Y&#41; and  <code>sub_n</code> subjects per group. Each subject responed to <code>item_n</code> items.  Create a simulated data structure with <code>simdat&#40;sub_n, item_n&#41;</code>.</p>
 
 
 <pre class='hljl'>
@@ -924,7 +962,7 @@ RObject&#123;VecSxp&#125;
 
 
 <h2>Set up design with R</h2>
-<p>Or you can use <code>sim_design&#40;&#41;</code> in &#123;faux&#125; to set up a data structure.  Don&#39;t worry about setting means and SDs, we&#39;ll simulate null effects and  add fixed and random effects structures directly to <code>parametricbootstrap</code>  or <code>simulate_waldtests</code>.</p>
+<p>Or you can use <code>sim_design&#40;&#41;</code> in &#123;faux&#125; to set up a data structure in R.  Don&#39;t worry about setting means and SDs, we&#39;ll simulate null effects and  add fixed and random effects structures directly to  <code>simulate_waldtests</code>.</p>
 
 
 <pre class='hljl'>
@@ -941,7 +979,6 @@ dat &lt;- faux::sim_design(
 )
 
 &quot;&quot;&quot;</span><span class='hljl-p'>;</span><span class='hljl-t'>
-
 
 </span><span class='hljl-n'>dat</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>rcopy</span><span class='hljl-p'>(</span><span class='hljl-so'>R&quot;dat&quot;</span><span class='hljl-p'>);</span>
 </pre>
@@ -964,7 +1001,7 @@ dat &lt;- faux::sim_design(
 <pre class="output">
 2-element Array&#123;Float64,1&#125;:
  0.0                
- 0.04913130374947172
+ 0.05939513064982274
 </pre>
 
 
@@ -984,10 +1021,11 @@ dat &lt;- faux::sim_design(
 </span><span class='hljl-n'>new_sigma</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nfB'>1.0</span><span class='hljl-t'>
 </span><span class='hljl-n'>new_theta</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>[</span><span class='hljl-nfB'>0.2</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nfB'>0.2</span><span class='hljl-p'>]</span><span class='hljl-t'>
 
-</span><span class='hljl-n'>b1</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>parametricbootstrap</span><span class='hljl-p'>(</span><span class='hljl-n'>rnd</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>1000</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>m1</span><span class='hljl-p'>,</span><span class='hljl-t'> 
-                         </span><span class='hljl-n'>β</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>new_beta</span><span class='hljl-p'>,</span><span class='hljl-t'> 
-                         </span><span class='hljl-n'>σ</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>new_sigma</span><span class='hljl-p'>,</span><span class='hljl-t'> 
-                         </span><span class='hljl-n'>θ</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>new_theta</span><span class='hljl-p'>);</span>
+</span><span class='hljl-n'>sim1</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>simulate_waldtests</span><span class='hljl-p'>(</span><span class='hljl-n'>rnd</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>nsims</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>m1</span><span class='hljl-p'>,</span><span class='hljl-t'> 
+                        </span><span class='hljl-n'>β</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>new_beta</span><span class='hljl-p'>,</span><span class='hljl-t'> 
+                        </span><span class='hljl-n'>σ</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>new_sigma</span><span class='hljl-p'>,</span><span class='hljl-t'> 
+                        </span><span class='hljl-n'>θ</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>new_theta</span><span class='hljl-p'>,</span><span class='hljl-t'>
+                        </span><span class='hljl-n'>use_threads</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-kc'>true</span><span class='hljl-p'>);</span>
 </pre>
 
 
@@ -996,43 +1034,113 @@ dat &lt;- faux::sim_design(
 
 
 <pre class='hljl'>
-<span class='hljl-n'>age_beta</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>getindex</span><span class='hljl-oB'>.</span><span class='hljl-p'>(</span><span class='hljl-n'>b1</span><span class='hljl-oB'>.</span><span class='hljl-n'>β</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>2</span><span class='hljl-p'>)</span><span class='hljl-t'>
-</span><span class='hljl-nd'>@rput</span><span class='hljl-t'> </span><span class='hljl-n'>age_beta</span><span class='hljl-p'>;</span><span class='hljl-t'>
-
-</span><span class='hljl-so'>R&quot;&quot;&quot;
-
-library(ggplot2)
-
-ggplot() + geom_density(aes(x = age_beta))
-
-ggsave(&quot;file.png&quot;, width = 7, height = 5)
-
-&quot;&quot;&quot;</span><span class='hljl-p'>;</span>
+<span class='hljl-n'>m1_names</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>[</span><span class='hljl-s'>&quot;int&quot;</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-s'>&quot;age&quot;</span><span class='hljl-p'>]</span><span class='hljl-t'>
+</span><span class='hljl-nf'>ggplot_betas</span><span class='hljl-p'>(</span><span class='hljl-n'>sim1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>m1_names</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-s'>&quot;simbetas.png&quot;</span><span class='hljl-p'>);</span>
 </pre>
 
 
 
-<p><img src="file.png" alt="" /></p>
+<p><img src="simbetas.png" alt="" /></p>
 <h2>Power</h2>
 
 
 <pre class='hljl'>
-<span class='hljl-n'>zp</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>simulate_waldtests</span><span class='hljl-p'>(</span><span class='hljl-n'>rnd</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>,</span><span class='hljl-n'>m1</span><span class='hljl-p'>,</span><span class='hljl-t'> 
-                         </span><span class='hljl-n'>β</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>new_beta</span><span class='hljl-p'>,</span><span class='hljl-t'> 
-                         </span><span class='hljl-n'>σ</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>new_sigma</span><span class='hljl-p'>,</span><span class='hljl-t'> 
-                         </span><span class='hljl-n'>θ</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>new_theta</span><span class='hljl-p'>);</span><span class='hljl-t'>
-
-</span><span class='hljl-nf'>coefnames</span><span class='hljl-p'>(</span><span class='hljl-n'>m1</span><span class='hljl-p'>)</span><span class='hljl-t'>
-
-</span><span class='hljl-n'>pvals</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>columntable</span><span class='hljl-p'>(</span><span class='hljl-n'>zp</span><span class='hljl-p'>)</span><span class='hljl-oB'>.</span><span class='hljl-n'>p</span><span class='hljl-t'>
-
-</span><span class='hljl-nf'>mean</span><span class='hljl-p'>(</span><span class='hljl-n'>getindex</span><span class='hljl-oB'>.</span><span class='hljl-p'>(</span><span class='hljl-n'>pvals</span><span class='hljl-p'>,</span><span class='hljl-ni'>1</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>.&lt;</span><span class='hljl-t'> </span><span class='hljl-nfB'>0.05</span><span class='hljl-p'>)</span><span class='hljl-t'>
-</span><span class='hljl-nf'>mean</span><span class='hljl-p'>(</span><span class='hljl-n'>getindex</span><span class='hljl-oB'>.</span><span class='hljl-p'>(</span><span class='hljl-n'>pvals</span><span class='hljl-p'>,</span><span class='hljl-ni'>2</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>.&lt;</span><span class='hljl-t'> </span><span class='hljl-nfB'>0.05</span><span class='hljl-p'>)</span>
+<span class='hljl-nf'>power_table</span><span class='hljl-p'>(</span><span class='hljl-n'>sim1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>m1_names</span><span class='hljl-p'>)</span>
 </pre>
 
 
 <pre class="output">
-0.893
+OrderedCollections.OrderedDict&#123;Any,Any&#125; with 2 entries:
+  &quot;age&quot; &#61;&gt; 0.901
+  &quot;int&quot; &#61;&gt; 0.068
+</pre>
+
+
+<h2>Write simulation data to a csv file</h2>
+
+
+<pre class='hljl'>
+<span class='hljl-n'>sim1</span><span class='hljl-t'> </span><span class='hljl-oB'>|&gt;</span><span class='hljl-t'> </span><span class='hljl-n'>CSV</span><span class='hljl-oB'>.</span><span class='hljl-nf'>write</span><span class='hljl-p'>(</span><span class='hljl-s'>&quot;sim1.csv&quot;</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+&quot;sim1.csv&quot;
+</pre>
+
+
+<h2>Write a function to vary something</h2>
+
+
+<pre class='hljl'>
+<span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>mysim</span><span class='hljl-p'>(</span><span class='hljl-n'>sub_n</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>item_n</span><span class='hljl-p'>,</span><span class='hljl-t'> 
+               </span><span class='hljl-n'>nsims</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-ni'>1000</span><span class='hljl-p'>,</span><span class='hljl-t'> 
+               </span><span class='hljl-n'>beta</span><span class='hljl-t'>  </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>[</span><span class='hljl-ni'>0</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>0</span><span class='hljl-p'>],</span><span class='hljl-t'>
+               </span><span class='hljl-n'>sigma</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-p'>,</span><span class='hljl-t'> 
+               </span><span class='hljl-n'>theta</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>[</span><span class='hljl-ni'>1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-p'>],</span><span class='hljl-t'>
+               </span><span class='hljl-n'>seed</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>convert</span><span class='hljl-p'>(</span><span class='hljl-n'>Int64</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nf'>round</span><span class='hljl-p'>(</span><span class='hljl-nf'>rand</span><span class='hljl-p'>()</span><span class='hljl-oB'>*</span><span class='hljl-nfB'>1e8</span><span class='hljl-p'>))</span><span class='hljl-t'>
+               </span><span class='hljl-p'>)</span><span class='hljl-t'>
+    </span><span class='hljl-nd'>@rput</span><span class='hljl-t'> </span><span class='hljl-n'>sub_n</span><span class='hljl-p'>;</span><span class='hljl-t'>
+    </span><span class='hljl-nd'>@rput</span><span class='hljl-t'> </span><span class='hljl-n'>item_n</span><span class='hljl-p'>;</span><span class='hljl-t'>
+
+    </span><span class='hljl-cs'># generate data</span><span class='hljl-t'>
+    </span><span class='hljl-so'>R&quot;&quot;&quot;
+        dat &lt;- faux::sim_design(
+            within = list(item = faux::make_id(item_n, &quot;I&quot;)), 
+            between = list(age = c(&quot;O&quot;, &quot;Y&quot;)), 
+            n = sub_n,
+            dv = &quot;dv&quot;, 
+            id = &quot;subj&quot;,
+            plot = FALSE, 
+            long = TRUE
+        )
+    &quot;&quot;&quot;</span><span class='hljl-p'>;</span><span class='hljl-t'>
+
+    </span><span class='hljl-n'>dat</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>rcopy</span><span class='hljl-p'>(</span><span class='hljl-so'>R&quot;dat&quot;</span><span class='hljl-p'>);</span><span class='hljl-t'>
+
+    </span><span class='hljl-cs'># set up model</span><span class='hljl-t'>
+    </span><span class='hljl-n'>f</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nd'>@formula</span><span class='hljl-t'> </span><span class='hljl-n'>dv</span><span class='hljl-t'> </span><span class='hljl-oB'>~</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>age</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-p'>(</span><span class='hljl-ni'>1</span><span class='hljl-oB'>|</span><span class='hljl-n'>item</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-p'>(</span><span class='hljl-ni'>1</span><span class='hljl-oB'>|</span><span class='hljl-n'>subj</span><span class='hljl-p'>);</span><span class='hljl-t'>
+    </span><span class='hljl-n'>m</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>fit</span><span class='hljl-p'>(</span><span class='hljl-n'>MixedModel</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>f</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>dat</span><span class='hljl-p'>)</span><span class='hljl-t'>
+
+    </span><span class='hljl-cs'># run simulation</span><span class='hljl-t'>
+    </span><span class='hljl-n'>rnd</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>MersenneTwister</span><span class='hljl-p'>(</span><span class='hljl-n'>seed</span><span class='hljl-p'>);</span><span class='hljl-t'>
+
+    </span><span class='hljl-nf'>simulate_waldtests</span><span class='hljl-p'>(</span><span class='hljl-t'>
+        </span><span class='hljl-n'>rnd</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>nsims</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>m</span><span class='hljl-p'>,</span><span class='hljl-t'> 
+        </span><span class='hljl-n'>β</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>beta</span><span class='hljl-p'>,</span><span class='hljl-t'> 
+        </span><span class='hljl-n'>σ</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>sigma</span><span class='hljl-p'>,</span><span class='hljl-t'> 
+        </span><span class='hljl-n'>θ</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>theta</span><span class='hljl-p'>,</span><span class='hljl-t'> 
+        </span><span class='hljl-n'>use_threads</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-kc'>true</span><span class='hljl-t'>
+    </span><span class='hljl-p'>);</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span>
+</pre>
+
+
+<pre class="output">
+mysim &#40;generic function with 6 methods&#41;
+</pre>
+
+
+
+<pre class='hljl'>
+<span class='hljl-n'>s20_10</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>mysim</span><span class='hljl-p'>(</span><span class='hljl-ni'>20</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>10</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>1000</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-p'>[</span><span class='hljl-ni'>0</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nfB'>0.5</span><span class='hljl-p'>])</span><span class='hljl-t'>
+
+</span><span class='hljl-nf'>power_table</span><span class='hljl-p'>(</span><span class='hljl-n'>s20_10</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>m1_names</span><span class='hljl-p'>)</span><span class='hljl-t'>
+
+</span><span class='hljl-n'>s20_20</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>mysim</span><span class='hljl-p'>(</span><span class='hljl-ni'>20</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>20</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>1000</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-p'>[</span><span class='hljl-ni'>0</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nfB'>0.5</span><span class='hljl-p'>])</span><span class='hljl-t'>
+
+</span><span class='hljl-nf'>power_table</span><span class='hljl-p'>(</span><span class='hljl-n'>s20_20</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>m1_names</span><span class='hljl-p'>)</span><span class='hljl-t'>
+
+</span><span class='hljl-n'>s20_30</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>mysim</span><span class='hljl-p'>(</span><span class='hljl-ni'>20</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>20</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>1000</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-p'>[</span><span class='hljl-ni'>0</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nfB'>0.5</span><span class='hljl-p'>])</span><span class='hljl-t'>
+
+</span><span class='hljl-nf'>power_table</span><span class='hljl-p'>(</span><span class='hljl-n'>s20_30</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>m1_names</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+OrderedCollections.OrderedDict&#123;Any,Any&#125; with 2 entries:
+  &quot;age&quot; &#61;&gt; 0.38
+  &quot;int&quot; &#61;&gt; 0.056
 </pre>
 
 
@@ -1042,7 +1150,7 @@ ggsave(&quot;file.png&quot;, width = 7, height = 5)
           <div class="footer"><p>
           Published from <a href="simulation_tutorial.jmd">simulation_tutorial.jmd</a> using
           <a href="http://github.com/mpastell/Weave.jl">Weave.jl</a>
-           on 2020-02-13.
+           on 2020-02-14.
           <p></div>
 
 

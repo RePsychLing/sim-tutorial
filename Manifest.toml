@@ -12,6 +12,12 @@ git-tree-sha1 = "68a90a692ddc0eb72d69a6993ca26e2a923bf195"
 uuid = "68821587-b530-5797-8361-c406ea357684"
 version = "3.5.0+2"
 
+[[Arrow]]
+deps = ["CategoricalArrays", "Dates"]
+git-tree-sha1 = "c86df6ed41b3bd192d663e5e0e7cac0d11fd4375"
+uuid = "69666777-d1a9-59fb-9406-91d4454c9d45"
+version = "0.2.4"
+
 [[Base64]]
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
 
@@ -29,9 +35,9 @@ version = "0.5.8"
 
 [[BlockArrays]]
 deps = ["LinearAlgebra"]
-git-tree-sha1 = "991b73d29f2166fb8acc2ac9e0093a8b9143cc96"
+git-tree-sha1 = "54a8bc44883dc33002bd954ba6d336ee86ec62d1"
 uuid = "8e7c35d0-a365-5155-bbbb-fb81a777f24e"
-version = "0.10.2"
+version = "0.11.1"
 
 [[BlockDiagonals]]
 deps = ["FillArrays", "LinearAlgebra"]
@@ -129,9 +135,9 @@ uuid = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 
 [[Distributions]]
 deps = ["FillArrays", "LinearAlgebra", "PDMats", "Printf", "QuadGK", "Random", "SpecialFunctions", "Statistics", "StatsBase", "StatsFuns"]
-git-tree-sha1 = "e063d0b5d27180b98edacd2b1cb90ecfbc171385"
+git-tree-sha1 = "6b19601c0e98de3a8964ed33ad73e130c7165b1d"
 uuid = "31c24e10-a181-5473-b8eb-7969acd0382f"
-version = "0.21.12"
+version = "0.22.4"
 
 [[ExprTools]]
 git-tree-sha1 = "08c1f74d9ad03acf0ee84c12c9e665ab1a9a6e33"
@@ -144,6 +150,12 @@ git-tree-sha1 = "0fa3b52a04a4e210aeb1626def9c90df3ae65268"
 uuid = "8f5d6c58-4d21-5cfd-889c-e3ad7ee6a615"
 version = "1.1.0"
 
+[[Feather]]
+deps = ["Arrow", "CategoricalArrays", "DataFrames", "Dates", "FlatBuffers", "Mmap", "Tables"]
+git-tree-sha1 = "f00ed0cadaa2ff0ee31340482f3fbf9321ad2499"
+uuid = "becb17da-46f6-5d3c-ad1b-1c5fe96bc73c"
+version = "0.5.4"
+
 [[FileIO]]
 deps = ["Pkg"]
 git-tree-sha1 = "2c84c57aced468fa21763c66d3bef33adcd09ec7"
@@ -155,6 +167,12 @@ deps = ["LinearAlgebra", "Random", "SparseArrays"]
 git-tree-sha1 = "fec413d4fc547992eb62a5c544cedb6d7853c1f5"
 uuid = "1a297f60-69ca-5386-bcde-b61e274b549b"
 version = "0.8.4"
+
+[[FlatBuffers]]
+deps = ["Parameters", "Test"]
+git-tree-sha1 = "8582924ac52011d08da9cf1e67f13a71dbbc2594"
+uuid = "53afe959-3a16-52fa-a8da-cf864710bae9"
+version = "0.5.4"
 
 [[Future]]
 deps = ["Random"]
@@ -229,8 +247,10 @@ uuid = "e1d29d7a-bbdc-5cf2-9ac0-f12de2c33e28"
 version = "0.4.3"
 
 [[MixedModels]]
-deps = ["BlockArrays", "BlockDiagonals", "Distributions", "GLM", "LinearAlgebra", "NLopt", "NamedArrays", "Printf", "ProgressMeter", "Random", "Showoff", "SparseArrays", "StaticArrays", "Statistics", "StatsBase", "StatsFuns", "StatsModels", "Tables", "TypedTables"]
-git-tree-sha1 = "db856db67b1f1b8021d0713f76092fe60958812b"
+deps = ["BlockArrays", "BlockDiagonals", "Distributions", "Feather", "GLM", "LinearAlgebra", "NLopt", "NamedArrays", "Pkg", "Printf", "ProgressMeter", "Random", "Showoff", "SparseArrays", "StaticArrays", "Statistics", "StatsBase", "StatsFuns", "StatsModels", "Tables", "TypedTables"]
+git-tree-sha1 = "124b745d740c98e2f0df5914fad80823e1a3f562"
+repo-rev = "master"
+repo-url = "https://github.com/JuliaStats/MixedModels.jl.git"
 uuid = "ff71e718-51f3-5ec2-a782-8ffcbfa3c316"
 version = "2.2.0"
 
@@ -444,9 +464,9 @@ version = "0.9.3"
 
 [[StatsModels]]
 deps = ["DataAPI", "DataStructures", "LinearAlgebra", "ShiftedArrays", "SparseArrays", "StatsBase", "Tables"]
-git-tree-sha1 = "f4a967704cae9426654cf4649561f263a6dc8419"
+git-tree-sha1 = "546d463356f3347769de7ba7c78e4496b9b77ff5"
 uuid = "3eaba693-59b7-5ba5-a881-562e759f1c8d"
-version = "0.6.7"
+version = "0.6.8"
 
 [[SuiteSparse]]
 deps = ["Libdl", "LinearAlgebra", "Serialization", "SparseArrays"]
