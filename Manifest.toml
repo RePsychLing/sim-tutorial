@@ -267,9 +267,9 @@ uuid = "ff71e718-51f3-5ec2-a782-8ffcbfa3c316"
 version = "2.2.0"
 
 [[MixedModelsSim]]
-deps = ["DataFrames", "PooledArrays", "Tables"]
-git-tree-sha1 = "c2451259ce58b1554d7f772403f1329baa323414"
-repo-rev = "master"
+deps = ["DataFrames", "MixedModels", "PooledArrays", "Random", "StaticArrays", "Tables"]
+git-tree-sha1 = "3cb90042626808b56c0d66c261a5fe87d2e632c2"
+repo-rev = "coef-power"
 repo-url = "https://github.com/RePsychLing/MixedModelsSim.jl"
 uuid = "d5ae56c5-23ca-4a1f-b505-9fc4796fc1fe"
 version = "0.1.0"
@@ -332,7 +332,7 @@ uuid = "69de0a69-1ddd-5017-9359-2bf0b02dc9f0"
 version = "0.3.11"
 
 [[Pkg]]
-deps = ["Dates", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "REPL", "Random", "SHA", "UUIDs"]
+deps = ["Dates", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "REPL", "Random", "SHA", "Test", "UUIDs"]
 uuid = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 
 [[Polynomials]]

@@ -43,54 +43,6 @@ is debugged.
 nsims = 1000 # set to a low number for test, high for production
 ```
 
-#### Define `simulate_waldtests`
-
-Function for returning beta, se, z-scores, and p-values for `n` simulated iterations.
-
-```{julia;label=simulate_waldtests}
-
-function simulate_waldtests(
-    rng::AbstractRNG,
-    n::Integer,
-    morig::MixedModel{T};
-    β = morig.β,
-    σ = morig.σ,
-    θ = morig.θ,
-    use_threads = false,
-) where {T}
-    zval, pval, nβ, m = similar(β), similar(β), length(β), deepcopy(morig)
-    y₀ = copy(response(m))
-    # we need to do for in-place operations to work across threads
-    m_threads = [m]
-    zval_threads = [zval]
-    pval_threads = [pval]
-
-    if use_threads
-        Threads.resize_nthreads!(m_threads)
-        Threads.resize_nthreads!(zval_threads)
-        Threads.resize_nthreads!(pval_threads)
-    end
-
-    rnglock = ReentrantLock()
-    replicate(n, use_threads=use_threads) do
-        mod = m_threads[Threads.threadid()]
-        local zval = zval_threads[Threads.threadid()]
-        local pval = pval_threads[Threads.threadid()]
-        lock(rnglock)
-        mod = simulate!(rng, mod, β = β, σ = σ, θ = θ)
-        unlock(rnglock)
-        refit!(mod)
-        ct = coeftable(mod)
-        (
-         beta = ct.cols[1],
-         se = ct.cols[2],
-         z = ct.cols[3],
-         p = ct.cols[4],
-        )
-    end
-end
-
-```
 
 #### Define `ggplot_betas`
 
@@ -98,13 +50,9 @@ This function plots the beta values returned from `simulate_waldtests` using ggp
 
 ```{julia;label=ggplot_betas}
 
-function ggplot_betas(sim, colnames, figname = "betas.svg", width = 7, height = 5) 
-    beta_df = reduce(hcat, columntable(sim).beta)' |> DataFrame;
-    coln = ncol(beta_df);
-    if isa(colnames, Nothing)
-        colnames = string.("Eff", 1:coln);
-    end
-    rename!(beta_df, colnames);
+function ggplot_betas(sim, figname = "betas.svg", width = 7, height = 5) 
+
+    beta_df = DataFrame(columntable(sim).β)
 
     R"""
         p <- $beta_df %>%
@@ -128,23 +76,11 @@ the p-values returned from `simulate_waldtests`.
 
 ```{julia;label=power}
 
-function power_table(sim, colnames, alpha = 0.05)
-    pvals = columntable(sim).p;
-
-    coln = length(pvals[1]);
-    if isa(colnames, Nothing)
-        colnames = string.("Eff", 1:coln)
-    end
-    
-    power = DataFrame(
-        effect = colnames,
-        power = 0.0
-    )
-    for i in 1:coln
-        power.power[i] = mean(getindex.(pvals,i) .< alpha)
-    end
-    
-    power
+function power_table(sim, alpha = 0.05)
+    pvals = DataFrame(columntable(sim).p)
+    pvals = stack(pvals, 1:ncol(pvals)) 
+    pwr = by(pvals, :variable, :value => x->mean(x.<alpha) )
+    rename!(pwr, ["coefnames", "power"])
 end
 
 
@@ -185,24 +121,28 @@ rnd = MersenneTwister(8675309);
 
 # run 1000 iterations
 sim4 = simulate_waldtests(rnd, nsims, m4, use_threads = true);
+```
 
+Save all data to a csv file.
+
+```{julia}
 sim4_tab = DataFrame()
 for (i, sim) in enumerate(sim4)
     df = DataFrame(sim)
     df[!, :iteration] .= i
     df[!, :coefname] .= coefnames(m4)
-    append!(tab, df)
+    append!(sim4_tab, df)
 end
+
+CSV.write("sim4.csv", sim4_tab)
 
 ```
 
-Put betas into a data frame and send to R for plotting in ggplot.
+Plot betas in ggplot.
 
 ```{julia}
 
-m4_names = coefnames(m4)
-
-ggplot_betas(sim4, m4_names, "fig/m4_betas.svg");
+ggplot_betas(sim4, "fig/m4_betas.svg");
 
 ```
 
@@ -213,7 +153,7 @@ ggplot_betas(sim4, m4_names, "fig/m4_betas.svg");
 
 ```{julia}
 
-power_table(sim4, m4_names)
+power_table(sim4)
 
 ```
 
@@ -230,7 +170,7 @@ newβ[2:4] = m4.β[2:4]/2
 
 sim4_half = simulate_waldtests(rnd, nsims, m4, β = newβ, use_threads = true);
 
-power_table(sim4_half, m4_names)
+power_table(sim4_half)
 
 ```
 
@@ -306,7 +246,7 @@ dat = rcopy(R"dat");
 
 ```{julia;label=model}
 
-dat = simdat(20, 30)
+dat = simdat(30, 20)
 
 # set contrasts
 contrasts = Dict(:age => HelmertCoding(), 
@@ -348,8 +288,7 @@ sim1 = simulate_waldtests(rnd, nsims, m1,
 
 ```{julia}
 
-m1_names = ["int", "age", "cond", "age*cond"]
-ggplot_betas(sim1, m1_names, "fig/simbetas.svg");
+ggplot_betas(sim1, "fig/simbetas.svg");
 
 ```
 
@@ -360,7 +299,7 @@ ggplot_betas(sim1, m1_names, "fig/simbetas.svg");
 
 ```{julia;label=power}
 
-power_table(sim1, m1_names)
+power_table(sim1)
 
 ```
 
@@ -414,16 +353,12 @@ new_beta = [0, 0.4, 0.1, 0]
 new_sigma = 2.0
 new_theta = [1.0, 1.0]
 
-d = DataFrame(effect = String[], 
-              power = Float64[], 
-              item_n = Int[], 
-              sub_n = Int[])
+d = DataFrame()
 
 for sub_n in sub_ns
     for item_n in item_ns
         s = mysim(sub_n, item_n, nsims, new_beta, new_sigma, new_theta);
-        pt = power_table(s, m1_names)
-        #pt.item_n = item_n
+        pt = power_table(s)
         pt[!, :item_n] .= item_n
         pt[!, :sub_n] .= sub_n
         append!(d, pt)

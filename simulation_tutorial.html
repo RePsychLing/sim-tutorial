@@ -708,71 +708,14 @@ library(tidyr)   # for data wrangling
 </pre>
 
 
-<h4>Define <code>simulate_waldtests</code></h4>
-<p>Function for returning beta, se, z-scores, and p-values for <code>n</code> simulated iterations.</p>
-
-
-<pre class='hljl'>
-<span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>simulate_waldtests</span><span class='hljl-p'>(</span><span class='hljl-t'>
-    </span><span class='hljl-n'>rng</span><span class='hljl-oB'>::</span><span class='hljl-n'>AbstractRNG</span><span class='hljl-p'>,</span><span class='hljl-t'>
-    </span><span class='hljl-n'>n</span><span class='hljl-oB'>::</span><span class='hljl-n'>Integer</span><span class='hljl-p'>,</span><span class='hljl-t'>
-    </span><span class='hljl-n'>morig</span><span class='hljl-oB'>::</span><span class='hljl-nf'>MixedModel</span><span class='hljl-p'>{</span><span class='hljl-n'>T</span><span class='hljl-p'>};</span><span class='hljl-t'>
-    </span><span class='hljl-n'>β</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>morig</span><span class='hljl-oB'>.</span><span class='hljl-n'>β</span><span class='hljl-p'>,</span><span class='hljl-t'>
-    </span><span class='hljl-n'>σ</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>morig</span><span class='hljl-oB'>.</span><span class='hljl-n'>σ</span><span class='hljl-p'>,</span><span class='hljl-t'>
-    </span><span class='hljl-n'>θ</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>morig</span><span class='hljl-oB'>.</span><span class='hljl-n'>θ</span><span class='hljl-p'>,</span><span class='hljl-t'>
-    </span><span class='hljl-n'>use_threads</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-kc'>false</span><span class='hljl-p'>,</span><span class='hljl-t'>
-</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-n'>where</span><span class='hljl-t'> </span><span class='hljl-p'>{</span><span class='hljl-n'>T</span><span class='hljl-p'>}</span><span class='hljl-t'>
-    </span><span class='hljl-n'>zval</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>pval</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>nβ</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>m</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>similar</span><span class='hljl-p'>(</span><span class='hljl-n'>β</span><span class='hljl-p'>),</span><span class='hljl-t'> </span><span class='hljl-nf'>similar</span><span class='hljl-p'>(</span><span class='hljl-n'>β</span><span class='hljl-p'>),</span><span class='hljl-t'> </span><span class='hljl-nf'>length</span><span class='hljl-p'>(</span><span class='hljl-n'>β</span><span class='hljl-p'>),</span><span class='hljl-t'> </span><span class='hljl-nf'>deepcopy</span><span class='hljl-p'>(</span><span class='hljl-n'>morig</span><span class='hljl-p'>)</span><span class='hljl-t'>
-    </span><span class='hljl-n'>y₀</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>copy</span><span class='hljl-p'>(</span><span class='hljl-nf'>response</span><span class='hljl-p'>(</span><span class='hljl-n'>m</span><span class='hljl-p'>))</span><span class='hljl-t'>
-    </span><span class='hljl-cs'># we need to do for in-place operations to work across threads</span><span class='hljl-t'>
-    </span><span class='hljl-n'>m_threads</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>[</span><span class='hljl-n'>m</span><span class='hljl-p'>]</span><span class='hljl-t'>
-    </span><span class='hljl-n'>zval_threads</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>[</span><span class='hljl-n'>zval</span><span class='hljl-p'>]</span><span class='hljl-t'>
-    </span><span class='hljl-n'>pval_threads</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>[</span><span class='hljl-n'>pval</span><span class='hljl-p'>]</span><span class='hljl-t'>
-
-    </span><span class='hljl-k'>if</span><span class='hljl-t'> </span><span class='hljl-n'>use_threads</span><span class='hljl-t'>
-        </span><span class='hljl-n'>Threads</span><span class='hljl-oB'>.</span><span class='hljl-nf'>resize_nthreads!</span><span class='hljl-p'>(</span><span class='hljl-n'>m_threads</span><span class='hljl-p'>)</span><span class='hljl-t'>
-        </span><span class='hljl-n'>Threads</span><span class='hljl-oB'>.</span><span class='hljl-nf'>resize_nthreads!</span><span class='hljl-p'>(</span><span class='hljl-n'>zval_threads</span><span class='hljl-p'>)</span><span class='hljl-t'>
-        </span><span class='hljl-n'>Threads</span><span class='hljl-oB'>.</span><span class='hljl-nf'>resize_nthreads!</span><span class='hljl-p'>(</span><span class='hljl-n'>pval_threads</span><span class='hljl-p'>)</span><span class='hljl-t'>
-    </span><span class='hljl-k'>end</span><span class='hljl-t'>
-
-    </span><span class='hljl-n'>rnglock</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>ReentrantLock</span><span class='hljl-p'>()</span><span class='hljl-t'>
-    </span><span class='hljl-nf'>replicate</span><span class='hljl-p'>(</span><span class='hljl-n'>n</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>use_threads</span><span class='hljl-oB'>=</span><span class='hljl-n'>use_threads</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-k'>do</span><span class='hljl-t'>
-        </span><span class='hljl-n'>mod</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>m_threads</span><span class='hljl-p'>[</span><span class='hljl-n'>Threads</span><span class='hljl-oB'>.</span><span class='hljl-nf'>threadid</span><span class='hljl-p'>()]</span><span class='hljl-t'>
-        </span><span class='hljl-kd'>local</span><span class='hljl-t'> </span><span class='hljl-n'>zval</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>zval_threads</span><span class='hljl-p'>[</span><span class='hljl-n'>Threads</span><span class='hljl-oB'>.</span><span class='hljl-nf'>threadid</span><span class='hljl-p'>()]</span><span class='hljl-t'>
-        </span><span class='hljl-kd'>local</span><span class='hljl-t'> </span><span class='hljl-n'>pval</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>pval_threads</span><span class='hljl-p'>[</span><span class='hljl-n'>Threads</span><span class='hljl-oB'>.</span><span class='hljl-nf'>threadid</span><span class='hljl-p'>()]</span><span class='hljl-t'>
-        </span><span class='hljl-nf'>lock</span><span class='hljl-p'>(</span><span class='hljl-n'>rnglock</span><span class='hljl-p'>)</span><span class='hljl-t'>
-        </span><span class='hljl-n'>mod</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>simulate!</span><span class='hljl-p'>(</span><span class='hljl-n'>rng</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>mod</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>β</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>β</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>σ</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>σ</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>θ</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>θ</span><span class='hljl-p'>)</span><span class='hljl-t'>
-        </span><span class='hljl-nf'>unlock</span><span class='hljl-p'>(</span><span class='hljl-n'>rnglock</span><span class='hljl-p'>)</span><span class='hljl-t'>
-        </span><span class='hljl-nf'>refit!</span><span class='hljl-p'>(</span><span class='hljl-n'>mod</span><span class='hljl-p'>)</span><span class='hljl-t'>
-        </span><span class='hljl-n'>ct</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>coeftable</span><span class='hljl-p'>(</span><span class='hljl-n'>mod</span><span class='hljl-p'>)</span><span class='hljl-t'>
-        </span><span class='hljl-p'>(</span><span class='hljl-t'>
-         </span><span class='hljl-n'>beta</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>ct</span><span class='hljl-oB'>.</span><span class='hljl-n'>cols</span><span class='hljl-p'>[</span><span class='hljl-ni'>1</span><span class='hljl-p'>],</span><span class='hljl-t'>
-         </span><span class='hljl-n'>se</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>ct</span><span class='hljl-oB'>.</span><span class='hljl-n'>cols</span><span class='hljl-p'>[</span><span class='hljl-ni'>2</span><span class='hljl-p'>],</span><span class='hljl-t'>
-         </span><span class='hljl-n'>z</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>ct</span><span class='hljl-oB'>.</span><span class='hljl-n'>cols</span><span class='hljl-p'>[</span><span class='hljl-ni'>3</span><span class='hljl-p'>],</span><span class='hljl-t'>
-         </span><span class='hljl-n'>p</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>ct</span><span class='hljl-oB'>.</span><span class='hljl-n'>cols</span><span class='hljl-p'>[</span><span class='hljl-ni'>4</span><span class='hljl-p'>],</span><span class='hljl-t'>
-        </span><span class='hljl-p'>)</span><span class='hljl-t'>
-    </span><span class='hljl-k'>end</span><span class='hljl-t'>
-</span><span class='hljl-k'>end</span>
-</pre>
-
-
-<pre class="output">
-simulate_waldtests &#40;generic function with 1 method&#41;
-</pre>
-
-
 <h4>Define <code>ggplot_betas</code></h4>
 <p>This function plots the beta values returned from <code>simulate_waldtests</code> using ggplot in R.</p>
 
 
 <pre class='hljl'>
-<span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>ggplot_betas</span><span class='hljl-p'>(</span><span class='hljl-n'>sim</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>colnames</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>figname</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-s'>&quot;betas.svg&quot;</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>width</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-ni'>7</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>height</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-ni'>5</span><span class='hljl-p'>)</span><span class='hljl-t'> 
-    </span><span class='hljl-n'>beta_df</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>reduce</span><span class='hljl-p'>(</span><span class='hljl-n'>hcat</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nf'>columntable</span><span class='hljl-p'>(</span><span class='hljl-n'>sim</span><span class='hljl-p'>)</span><span class='hljl-oB'>.</span><span class='hljl-n'>beta</span><span class='hljl-p'>)</span><span class='hljl-oB'>&#39;</span><span class='hljl-t'> </span><span class='hljl-oB'>|&gt;</span><span class='hljl-t'> </span><span class='hljl-n'>DataFrame</span><span class='hljl-p'>;</span><span class='hljl-t'>
-    </span><span class='hljl-n'>coln</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>ncol</span><span class='hljl-p'>(</span><span class='hljl-n'>beta_df</span><span class='hljl-p'>);</span><span class='hljl-t'>
-    </span><span class='hljl-k'>if</span><span class='hljl-t'> </span><span class='hljl-nf'>isa</span><span class='hljl-p'>(</span><span class='hljl-n'>colnames</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>Nothing</span><span class='hljl-p'>)</span><span class='hljl-t'>
-        </span><span class='hljl-n'>colnames</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>string</span><span class='hljl-oB'>.</span><span class='hljl-p'>(</span><span class='hljl-s'>&quot;Eff&quot;</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-n'>coln</span><span class='hljl-p'>);</span><span class='hljl-t'>
-    </span><span class='hljl-k'>end</span><span class='hljl-t'>
-    </span><span class='hljl-nf'>rename!</span><span class='hljl-p'>(</span><span class='hljl-n'>beta_df</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>colnames</span><span class='hljl-p'>);</span><span class='hljl-t'>
+<span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>ggplot_betas</span><span class='hljl-p'>(</span><span class='hljl-n'>sim</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>figname</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-s'>&quot;betas.svg&quot;</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>width</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-ni'>7</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>height</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-ni'>5</span><span class='hljl-p'>)</span><span class='hljl-t'> 
+
+    </span><span class='hljl-n'>beta_df</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>DataFrame</span><span class='hljl-p'>(</span><span class='hljl-nf'>columntable</span><span class='hljl-p'>(</span><span class='hljl-n'>sim</span><span class='hljl-p'>)</span><span class='hljl-oB'>.</span><span class='hljl-n'>β</span><span class='hljl-p'>)</span><span class='hljl-t'>
 
     </span><span class='hljl-so'>R&quot;&quot;&quot;
         p &lt;- $beta_df %&gt;%
@@ -799,23 +742,11 @@ ggplot_betas &#40;generic function with 4 methods&#41;
 
 
 <pre class='hljl'>
-<span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>power_table</span><span class='hljl-p'>(</span><span class='hljl-n'>sim</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>colnames</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>alpha</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nfB'>0.05</span><span class='hljl-p'>)</span><span class='hljl-t'>
-    </span><span class='hljl-n'>pvals</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>columntable</span><span class='hljl-p'>(</span><span class='hljl-n'>sim</span><span class='hljl-p'>)</span><span class='hljl-oB'>.</span><span class='hljl-n'>p</span><span class='hljl-p'>;</span><span class='hljl-t'>
-
-    </span><span class='hljl-n'>coln</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>length</span><span class='hljl-p'>(</span><span class='hljl-n'>pvals</span><span class='hljl-p'>[</span><span class='hljl-ni'>1</span><span class='hljl-p'>]);</span><span class='hljl-t'>
-    </span><span class='hljl-k'>if</span><span class='hljl-t'> </span><span class='hljl-nf'>isa</span><span class='hljl-p'>(</span><span class='hljl-n'>colnames</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>Nothing</span><span class='hljl-p'>)</span><span class='hljl-t'>
-        </span><span class='hljl-n'>colnames</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>string</span><span class='hljl-oB'>.</span><span class='hljl-p'>(</span><span class='hljl-s'>&quot;Eff&quot;</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-n'>coln</span><span class='hljl-p'>)</span><span class='hljl-t'>
-    </span><span class='hljl-k'>end</span><span class='hljl-t'>
-    
-    </span><span class='hljl-n'>power</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>DataFrame</span><span class='hljl-p'>(</span><span class='hljl-t'>
-        </span><span class='hljl-n'>effect</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>colnames</span><span class='hljl-p'>,</span><span class='hljl-t'>
-        </span><span class='hljl-n'>power</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nfB'>0.0</span><span class='hljl-t'>
-    </span><span class='hljl-p'>)</span><span class='hljl-t'>
-    </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-n'>coln</span><span class='hljl-t'>
-        </span><span class='hljl-n'>power</span><span class='hljl-oB'>.</span><span class='hljl-n'>power</span><span class='hljl-p'>[</span><span class='hljl-n'>i</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>mean</span><span class='hljl-p'>(</span><span class='hljl-n'>getindex</span><span class='hljl-oB'>.</span><span class='hljl-p'>(</span><span class='hljl-n'>pvals</span><span class='hljl-p'>,</span><span class='hljl-n'>i</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>.&lt;</span><span class='hljl-t'> </span><span class='hljl-n'>alpha</span><span class='hljl-p'>)</span><span class='hljl-t'>
-    </span><span class='hljl-k'>end</span><span class='hljl-t'>
-    
-    </span><span class='hljl-n'>power</span><span class='hljl-t'>
+<span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>power_table</span><span class='hljl-p'>(</span><span class='hljl-n'>sim</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>alpha</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nfB'>0.05</span><span class='hljl-p'>)</span><span class='hljl-t'>
+    </span><span class='hljl-n'>pvals</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>DataFrame</span><span class='hljl-p'>(</span><span class='hljl-nf'>columntable</span><span class='hljl-p'>(</span><span class='hljl-n'>sim</span><span class='hljl-p'>)</span><span class='hljl-oB'>.</span><span class='hljl-n'>p</span><span class='hljl-p'>)</span><span class='hljl-t'>
+    </span><span class='hljl-n'>pvals</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>stack</span><span class='hljl-p'>(</span><span class='hljl-n'>pvals</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-nf'>ncol</span><span class='hljl-p'>(</span><span class='hljl-n'>pvals</span><span class='hljl-p'>))</span><span class='hljl-t'> 
+    </span><span class='hljl-n'>pwr</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>by</span><span class='hljl-p'>(</span><span class='hljl-n'>pvals</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-sc'>:variable</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-sc'>:value</span><span class='hljl-t'> </span><span class='hljl-oB'>=&gt;</span><span class='hljl-t'> </span><span class='hljl-n'>x</span><span class='hljl-oB'>-&gt;</span><span class='hljl-nf'>mean</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-oB'>.&lt;</span><span class='hljl-n'>alpha</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-p'>)</span><span class='hljl-t'>
+    </span><span class='hljl-nf'>rename!</span><span class='hljl-p'>(</span><span class='hljl-n'>pwr</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-p'>[</span><span class='hljl-s'>&quot;coefnames&quot;</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-s'>&quot;power&quot;</span><span class='hljl-p'>])</span><span class='hljl-t'>
 </span><span class='hljl-k'>end</span>
 </pre>
 
@@ -887,13 +818,32 @@ load: yes         78.5904    16.0785     4.89   &lt;1e-5
 
 
 
-<p>Put betas into a data frame and send to R for plotting in ggplot.</p>
+<p>Save all data to a csv file.</p>
 
 
 <pre class='hljl'>
-<span class='hljl-n'>m4_names</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>coefnames</span><span class='hljl-p'>(</span><span class='hljl-n'>m4</span><span class='hljl-p'>)</span><span class='hljl-t'>
+<span class='hljl-n'>sim4_tab</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>DataFrame</span><span class='hljl-p'>()</span><span class='hljl-t'>
+</span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-p'>(</span><span class='hljl-n'>i</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>sim</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-nf'>enumerate</span><span class='hljl-p'>(</span><span class='hljl-n'>sim4</span><span class='hljl-p'>)</span><span class='hljl-t'>
+    </span><span class='hljl-n'>df</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>DataFrame</span><span class='hljl-p'>(</span><span class='hljl-n'>sim</span><span class='hljl-p'>)</span><span class='hljl-t'>
+    </span><span class='hljl-n'>df</span><span class='hljl-p'>[</span><span class='hljl-oB'>!</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-sc'>:iteration</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>.=</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'>
+    </span><span class='hljl-n'>df</span><span class='hljl-p'>[</span><span class='hljl-oB'>!</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-sc'>:coefname</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>.=</span><span class='hljl-t'> </span><span class='hljl-nf'>coefnames</span><span class='hljl-p'>(</span><span class='hljl-n'>m4</span><span class='hljl-p'>)</span><span class='hljl-t'>
+    </span><span class='hljl-nf'>append!</span><span class='hljl-p'>(</span><span class='hljl-n'>sim4_tab</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>df</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
 
-</span><span class='hljl-nf'>ggplot_betas</span><span class='hljl-p'>(</span><span class='hljl-n'>sim4</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>m4_names</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-s'>&quot;fig/m4_betas.svg&quot;</span><span class='hljl-p'>);</span>
+</span><span class='hljl-n'>CSV</span><span class='hljl-oB'>.</span><span class='hljl-nf'>write</span><span class='hljl-p'>(</span><span class='hljl-s'>&quot;sim4.csv&quot;</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>sim4_tab</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+&quot;sim4.csv&quot;
+</pre>
+
+
+<p>Plot betas in ggplot.</p>
+
+
+<pre class='hljl'>
+<span class='hljl-nf'>ggplot_betas</span><span class='hljl-p'>(</span><span class='hljl-n'>sim4</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-s'>&quot;fig/m4_betas.svg&quot;</span><span class='hljl-p'>);</span>
 </pre>
 
 
@@ -903,12 +853,12 @@ load: yes         78.5904    16.0785     4.89   &lt;1e-5
 
 
 <pre class='hljl'>
-<span class='hljl-nf'>power_table</span><span class='hljl-p'>(</span><span class='hljl-n'>sim4</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>m4_names</span><span class='hljl-p'>)</span>
+<span class='hljl-nf'>power_table</span><span class='hljl-p'>(</span><span class='hljl-n'>sim4</span><span class='hljl-p'>)</span>
 </pre>
 
 
 
-<table class="data-frame"><thead><tr><th></th><th>effect</th><th>power</th></tr><tr><th></th><th>String</th><th>Float64</th></tr></thead><tbody><p>4 rows × 2 columns</p><tr><th>1</th><td>(Intercept)</td><td>1.0</td></tr><tr><th>2</th><td>spkr: old</td><td>0.991</td></tr><tr><th>3</th><td>prec: maintain</td><td>1.0</td></tr><tr><th>4</th><td>load: yes</td><td>0.999</td></tr></tbody></table>
+<table class="data-frame"><thead><tr><th></th><th>coefnames</th><th>power</th></tr><tr><th></th><th>Symbol</th><th>Float64</th></tr></thead><tbody><p>4 rows × 2 columns</p><tr><th>1</th><td>(Intercept)</td><td>1.0</td></tr><tr><th>2</th><td>spkr: old</td><td>0.991</td></tr><tr><th>3</th><td>prec: maintain</td><td>1.0</td></tr><tr><th>4</th><td>load: yes</td><td>0.999</td></tr></tbody></table>
 
 <h3>Change parameters</h3>
 <p>Let&#39;s say we want to check our power to detect effects of spkr, prec, and load  that are half the size of our pilot data. We can set a new vector of beta values  with the <code>β</code> argument to <code>simulate_waldtests</code>.</p>
@@ -920,12 +870,12 @@ load: yes         78.5904    16.0785     4.89   &lt;1e-5
 
 </span><span class='hljl-n'>sim4_half</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>simulate_waldtests</span><span class='hljl-p'>(</span><span class='hljl-n'>rnd</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>nsims</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>m4</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>β</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>newβ</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>use_threads</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-kc'>true</span><span class='hljl-p'>);</span><span class='hljl-t'>
 
-</span><span class='hljl-nf'>power_table</span><span class='hljl-p'>(</span><span class='hljl-n'>sim4_half</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>m4_names</span><span class='hljl-p'>)</span>
+</span><span class='hljl-nf'>power_table</span><span class='hljl-p'>(</span><span class='hljl-n'>sim4_half</span><span class='hljl-p'>)</span>
 </pre>
 
 
 
-<table class="data-frame"><thead><tr><th></th><th>effect</th><th>power</th></tr><tr><th></th><th>String</th><th>Float64</th></tr></thead><tbody><p>4 rows × 2 columns</p><tr><th>1</th><td>(Intercept)</td><td>1.0</td></tr><tr><th>2</th><td>spkr: old</td><td>0.529</td></tr><tr><th>3</th><td>prec: maintain</td><td>0.928</td></tr><tr><th>4</th><td>load: yes</td><td>0.692</td></tr></tbody></table>
+<table class="data-frame"><thead><tr><th></th><th>coefnames</th><th>power</th></tr><tr><th></th><th>Symbol</th><th>Float64</th></tr></thead><tbody><p>4 rows × 2 columns</p><tr><th>1</th><td>(Intercept)</td><td>1.0</td></tr><tr><th>2</th><td>spkr: old</td><td>0.529</td></tr><tr><th>3</th><td>prec: maintain</td><td>0.928</td></tr><tr><th>4</th><td>load: yes</td><td>0.692</td></tr></tbody></table>
 
 <h1>Simulating Data from Scratch</h1>
 <h2>simdat</h2>
@@ -962,7 +912,7 @@ load: yes         78.5904    16.0785     4.89   &lt;1e-5
 
 
 
-<table class="data-frame"><thead><tr><th></th><th>item</th><th>subj</th><th>age</th><th>condition</th><th>dv</th></tr><tr><th></th><th>String</th><th>String</th><th>String</th><th>String</th><th>Float64</th></tr></thead><tbody><p>4 rows × 5 columns</p><tr><th>1</th><td>I1</td><td>S1</td><td>O</td><td>A</td><td>1.73085</td></tr><tr><th>2</th><td>I1</td><td>S2</td><td>Y</td><td>A</td><td>0.341959</td></tr><tr><th>3</th><td>I1</td><td>S1</td><td>O</td><td>B</td><td>-1.22711</td></tr><tr><th>4</th><td>I1</td><td>S2</td><td>Y</td><td>B</td><td>-1.22959</td></tr></tbody></table>
+<table class="data-frame"><thead><tr><th></th><th>item</th><th>subj</th><th>age</th><th>condition</th><th>dv</th></tr><tr><th></th><th>String</th><th>String</th><th>String</th><th>String</th><th>Float64</th></tr></thead><tbody><p>4 rows × 5 columns</p><tr><th>1</th><td>I1</td><td>S1</td><td>O</td><td>A</td><td>-1.00993</td></tr><tr><th>2</th><td>I1</td><td>S2</td><td>Y</td><td>A</td><td>0.292515</td></tr><tr><th>3</th><td>I1</td><td>S1</td><td>O</td><td>B</td><td>-1.64265</td></tr><tr><th>4</th><td>I1</td><td>S2</td><td>Y</td><td>B</td><td>-0.977443</td></tr></tbody></table>
 
 <h2>Set up design with R</h2>
 <p>Or you can use <code>sim_design&#40;&#41;</code> in &#123;faux&#125; to set up a data structure in R.  Don&#39;t worry about setting means and SDs, we&#39;ll simulate null effects and  add fixed and random effects structures directly to  <code>simulate_waldtests</code>.</p>
@@ -993,7 +943,9 @@ dat &lt;- faux::sim_design(
 
 
 <pre class='hljl'>
-<span class='hljl-cs'># set contrasts</span><span class='hljl-t'>
+<span class='hljl-n'>dat</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>simdat</span><span class='hljl-p'>(</span><span class='hljl-ni'>30</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>20</span><span class='hljl-p'>)</span><span class='hljl-t'>
+
+</span><span class='hljl-cs'># set contrasts</span><span class='hljl-t'>
 </span><span class='hljl-n'>contrasts</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Dict</span><span class='hljl-p'>(</span><span class='hljl-sc'>:age</span><span class='hljl-t'> </span><span class='hljl-oB'>=&gt;</span><span class='hljl-t'> </span><span class='hljl-nf'>HelmertCoding</span><span class='hljl-p'>(),</span><span class='hljl-t'> 
                  </span><span class='hljl-sc'>:condition</span><span class='hljl-t'> </span><span class='hljl-oB'>=&gt;</span><span class='hljl-t'> </span><span class='hljl-nf'>HelmertCoding</span><span class='hljl-p'>());</span><span class='hljl-t'>
 
@@ -1042,8 +994,7 @@ dat &lt;- faux::sim_design(
 
 
 <pre class='hljl'>
-<span class='hljl-n'>m1_names</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>[</span><span class='hljl-s'>&quot;int&quot;</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-s'>&quot;age&quot;</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-s'>&quot;cond&quot;</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-s'>&quot;age*cond&quot;</span><span class='hljl-p'>]</span><span class='hljl-t'>
-</span><span class='hljl-nf'>ggplot_betas</span><span class='hljl-p'>(</span><span class='hljl-n'>sim1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>m1_names</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-s'>&quot;fig/simbetas.svg&quot;</span><span class='hljl-p'>);</span>
+<span class='hljl-nf'>ggplot_betas</span><span class='hljl-p'>(</span><span class='hljl-n'>sim1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-s'>&quot;fig/simbetas.svg&quot;</span><span class='hljl-p'>);</span>
 </pre>
 
 
@@ -1053,12 +1004,12 @@ dat &lt;- faux::sim_design(
 
 
 <pre class='hljl'>
-<span class='hljl-nf'>power_table</span><span class='hljl-p'>(</span><span class='hljl-n'>sim1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>m1_names</span><span class='hljl-p'>)</span>
+<span class='hljl-nf'>power_table</span><span class='hljl-p'>(</span><span class='hljl-n'>sim1</span><span class='hljl-p'>)</span>
 </pre>
 
 
 
-<table class="data-frame"><thead><tr><th></th><th>effect</th><th>power</th></tr><tr><th></th><th>String</th><th>Float64</th></tr></thead><tbody><p>4 rows × 2 columns</p><tr><th>1</th><td>int</td><td>0.053</td></tr><tr><th>2</th><td>age</td><td>0.17</td></tr><tr><th>3</th><td>cond</td><td>1.0</td></tr><tr><th>4</th><td>age*cond</td><td>0.054</td></tr></tbody></table>
+<table class="data-frame"><thead><tr><th></th><th>coefnames</th><th>power</th></tr><tr><th></th><th>Symbol</th><th>Float64</th></tr></thead><tbody><p>4 rows × 2 columns</p><tr><th>1</th><td>(Intercept)</td><td>0.055</td></tr><tr><th>2</th><td>age: Y</td><td>0.174</td></tr><tr><th>3</th><td>condition: B</td><td>1.0</td></tr><tr><th>4</th><td>age: Y &amp; condition: B</td><td>0.043</td></tr></tbody></table>
 
 <h2>Write a function to vary something</h2>
 
@@ -1115,16 +1066,12 @@ mysim &#40;generic function with 6 methods&#41;
 </span><span class='hljl-n'>new_sigma</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nfB'>2.0</span><span class='hljl-t'>
 </span><span class='hljl-n'>new_theta</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>[</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>]</span><span class='hljl-t'>
 
-</span><span class='hljl-n'>d</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>DataFrame</span><span class='hljl-p'>(</span><span class='hljl-n'>effect</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>String</span><span class='hljl-p'>[],</span><span class='hljl-t'> 
-              </span><span class='hljl-n'>power</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>Float64</span><span class='hljl-p'>[],</span><span class='hljl-t'> 
-              </span><span class='hljl-n'>item_n</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>Int</span><span class='hljl-p'>[],</span><span class='hljl-t'> 
-              </span><span class='hljl-n'>sub_n</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>Int</span><span class='hljl-p'>[])</span><span class='hljl-t'>
+</span><span class='hljl-n'>d</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>DataFrame</span><span class='hljl-p'>()</span><span class='hljl-t'>
 
 </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>sub_n</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-n'>sub_ns</span><span class='hljl-t'>
     </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>item_n</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-n'>item_ns</span><span class='hljl-t'>
         </span><span class='hljl-n'>s</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>mysim</span><span class='hljl-p'>(</span><span class='hljl-n'>sub_n</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>item_n</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>nsims</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>new_beta</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>new_sigma</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>new_theta</span><span class='hljl-p'>);</span><span class='hljl-t'>
-        </span><span class='hljl-n'>pt</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>power_table</span><span class='hljl-p'>(</span><span class='hljl-n'>s</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>m1_names</span><span class='hljl-p'>)</span><span class='hljl-t'>
-        </span><span class='hljl-cs'>#pt.item_n = item_n</span><span class='hljl-t'>
+        </span><span class='hljl-n'>pt</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>power_table</span><span class='hljl-p'>(</span><span class='hljl-n'>s</span><span class='hljl-p'>)</span><span class='hljl-t'>
         </span><span class='hljl-n'>pt</span><span class='hljl-p'>[</span><span class='hljl-oB'>!</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-sc'>:item_n</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>.=</span><span class='hljl-t'> </span><span class='hljl-n'>item_n</span><span class='hljl-t'>
         </span><span class='hljl-n'>pt</span><span class='hljl-p'>[</span><span class='hljl-oB'>!</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-sc'>:sub_n</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>.=</span><span class='hljl-t'> </span><span class='hljl-n'>sub_n</span><span class='hljl-t'>
         </span><span class='hljl-nf'>append!</span><span class='hljl-p'>(</span><span class='hljl-n'>d</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>pt</span><span class='hljl-p'>)</span><span class='hljl-t'>
@@ -1138,7 +1085,7 @@ mysim &#40;generic function with 6 methods&#41;
 
 
 
-<table class="data-frame"><thead><tr><th></th><th>effect</th><th>power</th><th>item_n</th><th>sub_n</th></tr><tr><th></th><th>String</th><th>Float64</th><th>Int64</th><th>Int64</th></tr></thead><tbody><p>36 rows × 4 columns</p><tr><th>1</th><td>int</td><td>0.075</td><td>10</td><td>20</td></tr><tr><th>2</th><td>age</td><td>0.254</td><td>10</td><td>20</td></tr><tr><th>3</th><td>cond</td><td>0.284</td><td>10</td><td>20</td></tr><tr><th>4</th><td>age*cond</td><td>0.053</td><td>10</td><td>20</td></tr><tr><th>5</th><td>int</td><td>0.052</td><td>20</td><td>20</td></tr><tr><th>6</th><td>age</td><td>0.244</td><td>20</td><td>20</td></tr><tr><th>7</th><td>cond</td><td>0.512</td><td>20</td><td>20</td></tr><tr><th>8</th><td>age*cond</td><td>0.04</td><td>20</td><td>20</td></tr><tr><th>9</th><td>int</td><td>0.058</td><td>30</td><td>20</td></tr><tr><th>10</th><td>age</td><td>0.288</td><td>30</td><td>20</td></tr><tr><th>11</th><td>cond</td><td>0.677</td><td>30</td><td>20</td></tr><tr><th>12</th><td>age*cond</td><td>0.06</td><td>30</td><td>20</td></tr><tr><th>13</th><td>int</td><td>0.082</td><td>10</td><td>30</td></tr><tr><th>14</th><td>age</td><td>0.338</td><td>10</td><td>30</td></tr><tr><th>15</th><td>cond</td><td>0.411</td><td>10</td><td>30</td></tr><tr><th>16</th><td>age*cond</td><td>0.05</td><td>10</td><td>30</td></tr><tr><th>17</th><td>int</td><td>0.069</td><td>20</td><td>30</td></tr><tr><th>18</th><td>age</td><td>0.341</td><td>20</td><td>30</td></tr><tr><th>19</th><td>cond</td><td>0.675</td><td>20</td><td>30</td></tr><tr><th>20</th><td>age*cond</td><td>0.053</td><td>20</td><td>30</td></tr><tr><th>21</th><td>int</td><td>0.047</td><td>30</td><td>30</td></tr><tr><th>22</th><td>age</td><td>0.373</td><td>30</td><td>30</td></tr><tr><th>23</th><td>cond</td><td>0.855</td><td>30</td><td>30</td></tr><tr><th>24</th><td>age*cond</td><td>0.056</td><td>30</td><td>30</td></tr><tr><th>25</th><td>int</td><td>0.091</td><td>10</td><td>40</td></tr><tr><th>26</th><td>age</td><td>0.411</td><td>10</td><td>40</td></tr><tr><th>27</th><td>cond</td><td>0.518</td><td>10</td><td>40</td></tr><tr><th>28</th><td>age*cond</td><td>0.048</td><td>10</td><td>40</td></tr><tr><th>29</th><td>int</td><td>0.069</td><td>20</td><td>40</td></tr><tr><th>30</th><td>age</td><td>0.428</td><td>20</td><td>40</td></tr><tr><th>31</th><td>cond</td><td>0.803</td><td>20</td><td>40</td></tr><tr><th>32</th><td>age*cond</td><td>0.041</td><td>20</td><td>40</td></tr><tr><th>33</th><td>int</td><td>0.05</td><td>30</td><td>40</td></tr><tr><th>34</th><td>age</td><td>0.431</td><td>30</td><td>40</td></tr><tr><th>35</th><td>cond</td><td>0.927</td><td>30</td><td>40</td></tr><tr><th>36</th><td>age*cond</td><td>0.058</td><td>30</td><td>40</td></tr></tbody></table>
+<table class="data-frame"><thead><tr><th></th><th>coefnames</th><th>power</th><th>item_n</th><th>sub_n</th></tr><tr><th></th><th>Symbol</th><th>Float64</th><th>Int64</th><th>Int64</th></tr></thead><tbody><p>36 rows × 4 columns</p><tr><th>1</th><td>(Intercept)</td><td>0.08</td><td>10</td><td>20</td></tr><tr><th>2</th><td>age: Y</td><td>0.26</td><td>10</td><td>20</td></tr><tr><th>3</th><td>condition: B</td><td>0.293</td><td>10</td><td>20</td></tr><tr><th>4</th><td>age: Y &amp; condition: B</td><td>0.065</td><td>10</td><td>20</td></tr><tr><th>5</th><td>(Intercept)</td><td>0.055</td><td>20</td><td>20</td></tr><tr><th>6</th><td>age: Y</td><td>0.265</td><td>20</td><td>20</td></tr><tr><th>7</th><td>condition: B</td><td>0.519</td><td>20</td><td>20</td></tr><tr><th>8</th><td>age: Y &amp; condition: B</td><td>0.056</td><td>20</td><td>20</td></tr><tr><th>9</th><td>(Intercept)</td><td>0.069</td><td>30</td><td>20</td></tr><tr><th>10</th><td>age: Y</td><td>0.274</td><td>30</td><td>20</td></tr><tr><th>11</th><td>condition: B</td><td>0.653</td><td>30</td><td>20</td></tr><tr><th>12</th><td>age: Y &amp; condition: B</td><td>0.05</td><td>30</td><td>20</td></tr><tr><th>13</th><td>(Intercept)</td><td>0.082</td><td>10</td><td>30</td></tr><tr><th>14</th><td>age: Y</td><td>0.322</td><td>10</td><td>30</td></tr><tr><th>15</th><td>condition: B</td><td>0.428</td><td>10</td><td>30</td></tr><tr><th>16</th><td>age: Y &amp; condition: B</td><td>0.058</td><td>10</td><td>30</td></tr><tr><th>17</th><td>(Intercept)</td><td>0.076</td><td>20</td><td>30</td></tr><tr><th>18</th><td>age: Y</td><td>0.349</td><td>20</td><td>30</td></tr><tr><th>19</th><td>condition: B</td><td>0.688</td><td>20</td><td>30</td></tr><tr><th>20</th><td>age: Y &amp; condition: B</td><td>0.046</td><td>20</td><td>30</td></tr><tr><th>21</th><td>(Intercept)</td><td>0.052</td><td>30</td><td>30</td></tr><tr><th>22</th><td>age: Y</td><td>0.347</td><td>30</td><td>30</td></tr><tr><th>23</th><td>condition: B</td><td>0.864</td><td>30</td><td>30</td></tr><tr><th>24</th><td>age: Y &amp; condition: B</td><td>0.053</td><td>30</td><td>30</td></tr><tr><th>25</th><td>(Intercept)</td><td>0.085</td><td>10</td><td>40</td></tr><tr><th>26</th><td>age: Y</td><td>0.386</td><td>10</td><td>40</td></tr><tr><th>27</th><td>condition: B</td><td>0.522</td><td>10</td><td>40</td></tr><tr><th>28</th><td>age: Y &amp; condition: B</td><td>0.033</td><td>10</td><td>40</td></tr><tr><th>29</th><td>(Intercept)</td><td>0.066</td><td>20</td><td>40</td></tr><tr><th>30</th><td>age: Y</td><td>0.437</td><td>20</td><td>40</td></tr><tr><th>31</th><td>condition: B</td><td>0.783</td><td>20</td><td>40</td></tr><tr><th>32</th><td>age: Y &amp; condition: B</td><td>0.061</td><td>20</td><td>40</td></tr><tr><th>33</th><td>(Intercept)</td><td>0.057</td><td>30</td><td>40</td></tr><tr><th>34</th><td>age: Y</td><td>0.418</td><td>30</td><td>40</td></tr><tr><th>35</th><td>condition: B</td><td>0.921</td><td>30</td><td>40</td></tr><tr><th>36</th><td>age: Y &amp; condition: B</td><td>0.071</td><td>30</td><td>40</td></tr></tbody></table>
 
 
 
