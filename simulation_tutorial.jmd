@@ -426,14 +426,3 @@ CSV.write("power.csv", d)
 
 d
 ```
-
-
-
-
-
-```{julia}
-sim4
-
-NamedTuple{(Symbol.(coefnames(m4))...,)}(m4.β)
-
-```
