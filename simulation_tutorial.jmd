@@ -186,6 +186,14 @@ rnd = MersenneTwister(8675309);
 # run 1000 iterations
 sim4 = simulate_waldtests(rnd, nsims, m4, use_threads = true);
 
+sim4_tab = DataFrame()
+for (i, sim) in enumerate(sim4)
+    df = DataFrame(sim)
+    df[!, :iteration] .= i
+    df[!, :coefname] .= coefnames(m4)
+    append!(tab, df)
+end
+
 ```
 
 Put betas into a data frame and send to R for plotting in ggplot.
