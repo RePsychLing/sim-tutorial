@@ -105,19 +105,15 @@ function ggplot_betas(sim, colnames, figname = "betas.svg", width = 7, height = 
         colnames = string.("Eff", 1:coln);
     end
     rename!(beta_df, colnames);
-    @rput beta_df;
-    @rput figname;
-    @rput width;
-    @rput height;
 
     R"""
-        p <- beta_df %>%
+        p <- $beta_df %>%
             gather(var, val, 1:ncol(.)) %>%
             ggplot(aes(val, color = var)) +
             geom_density(show.legend = FALSE) +
             facet_wrap(~var, scales = "free")
 
-        ggsave(figname, p, width = width, height = height)
+        ggsave($figname, p, width = $width, height = $height)
 
         p
     """
@@ -302,6 +298,8 @@ dat = rcopy(R"dat");
 
 ```{julia;label=model}
 
+dat = simdat(20, 30)
+
 # set contrasts
 contrasts = Dict(:age => HelmertCoding(), 
                  :condition => HelmertCoding());
@@ -370,9 +368,6 @@ function mysim(sub_n, item_n,
                theta = [1.0, 1.0],
                seed = convert(Int64, round(rand()*1e8))
                )
-    @rput sub_n;
-    @rput item_n;
-
     # generate data
     dat = simdat(sub_n, item_n)
 
@@ -430,4 +425,15 @@ end
 CSV.write("power.csv", d)
 
 d
+```
+
+
+
+
+
+```{julia}
+sim4
+
+NamedTuple{(Symbol.(coefnames(m4))...,)}(m4.β)
+
 ```

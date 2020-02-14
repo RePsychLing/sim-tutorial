@@ -13,12 +13,20 @@ library(tidyverse)
 
 ```{r}
 dat <- read_csv("power.csv")
+```
 
-ggplot(dat, aes(x = sub_n, y = power, 
-                color = as.factor(item_n))) +
+
+```{r, fig.width = 7, fig.height = 5}
+dat %>%
+  filter(!effect %in% c("int")) %>%
+  mutate(effect = factor(effect, levels = effect[1:3])) %>%
+  ggplot(aes(x = sub_n, y = power, 
+             color = factor(item_n))) +
   geom_line() +
   geom_point() +
-  facet_wrap(~effect)
+  facet_wrap(~effect) +
+  scale_color_discrete(name = "Number of items") +
+  xlab("Number of subjects")
   
 ```
 
