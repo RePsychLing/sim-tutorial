@@ -80,10 +80,32 @@ function power_table(sim, alpha = 0.05)
     pvals = DataFrame(columntable(sim).p)
     pvals = stack(pvals, 1:ncol(pvals)) 
     pwr = by(pvals, :variable, :value => x->mean(x.<alpha) )
-    rename!(pwr, ["coefnames", "power"])
+    rename!(pwr, ["coefname", "power"])
 end
 
 
+```
+
+### Define `sim_to_dataframe`
+
+Output the values from `simulate_waldtests` as a data frame with columns:
+coefname, iteration,  p,  se,  z,  beta 
+
+```{julia;label=sim_to_dataframe}
+function sim_to_dataframe(sims)
+    tab = DataFrame()
+    for (i, sim) in enumerate(sims)
+        df = DataFrame(sim)
+        df[!, :iteration] .= i
+        df[!, :var] .= string.(collect(keys(sim)))
+        append!(tab, df)
+    end
+    longtab = stack(tab, 1:4, variable_name = :coefname)
+    widetab = unstack(longtab, :var, :value)
+    rename!(widetab, ["coefname", "iteration",  "p",  "se",  "z",  "beta" ])
+    df_ordered = widetab[[:iteration, :coefname, :beta, :se, :z, :p]]
+    sort!(df_ordered, cols = [:iteration])
+end
 ```
 
 ## Existing Data
@@ -126,13 +148,8 @@ sim4 = simulate_waldtests(rnd, nsims, m4, use_threads = true);
 Save all data to a csv file.
 
 ```{julia}
-sim4_tab = DataFrame()
-for (i, sim) in enumerate(sim4)
-    df = DataFrame(sim)
-    df[!, :iteration] .= i
-    df[!, :coefname] .= coefnames(m4)
-    append!(sim4_tab, df)
-end
+
+sim4_tab = sim_to_dataframe(sim4)
 
 CSV.write("sim4.csv", sim4_tab)
 
