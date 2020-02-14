@@ -25,7 +25,10 @@ Also load any packages we'll be using in R through `RCall()`.
 
 ```{julia;label=Rlibs}
 R"""
-library(tidyverse) # for visualisation and data wrangling
+library(ggplot2) # for visualisation
+library(svglite) # for svg plots
+library(dplyr)   # for data wrangling
+library(tidyr)   # for data wrangling
 """;
 ```
 
@@ -95,7 +98,7 @@ This function plots the beta values returned from `simulate_waldtests` using ggp
 
 ```{julia;label=ggplot_betas}
 
-function ggplot_betas(sim, colnames, figname = "betas.png", width = 7, height = 5) 
+function ggplot_betas(sim, colnames, figname = "betas.svg", width = 7, height = 5) 
     beta_df = reduce(hcat, columntable(sim).beta)' |> DataFrame;
     coln = ncol(beta_df);
     if isa(colnames, Nothing)
@@ -164,7 +167,7 @@ kb07 = MixedModels.dataset("kb07");
 # set contrasts
 contrasts = Dict(:spkr => HelmertCoding(), 
                  :prec => HelmertCoding(), 
-                 :load=> HelmertCoding());
+                 :load => HelmertCoding());
 
 # define formula
 f4 = @formula(rt_trunc ~ 1 + spkr+prec+load + (1|subj) + (1+prec|item));
@@ -195,11 +198,11 @@ Put betas into a data frame and send to R for plotting in ggplot.
 
 m4_names = coefnames(m4)
 
-ggplot_betas(sim4, m4_names, "fig/m4_betas.png");
+ggplot_betas(sim4, m4_names, "fig/m4_betas.svg");
 
 ```
 
-![](fig/m4_betas.png)
+![](fig/m4_betas.svg)
 
 
 ### Power calculation
@@ -340,11 +343,11 @@ sim1 = simulate_waldtests(rnd, nsims, m1,
 ```{julia}
 
 m1_names = ["int", "age", "cond", "age*cond"]
-ggplot_betas(sim1, m1_names, "fig/simbetas.png");
+ggplot_betas(sim1, m1_names, "fig/simbetas.svg");
 
 ```
 
-![](fig/simbetas.png)
+![](fig/simbetas.svg)
 
 
 ## Power
@@ -371,20 +374,7 @@ function mysim(sub_n, item_n,
     @rput item_n;
 
     # generate data
-    R"""
-        dat <- faux::sim_design(
-            within = list(item = faux::make_id(item_n, "I"),
-                          condition = c("A", "B")), 
-            between = list(age = c("O", "Y")), 
-            n = sub_n,
-            dv = "dv", 
-            id = "subj",
-            plot = FALSE, 
-            long = TRUE
-        )
-    """;
-
-    dat = rcopy(R"dat");
+    dat = simdat(sub_n, item_n)
 
     # set contrasts
     contrasts = Dict(:age => HelmertCoding(), 
@@ -408,23 +398,36 @@ end
 
 ```
 
+Run simulations over a range of values for any parameter.
 
 ```{julia}
-sub_n = 20
-new_beta = [0, 0.25, 0.25, 0]
-new_sigma = 2.0
-new_theta = [1.0, 1.0]
+# varying
+sub_ns = [20, 30, 40]
 item_ns = [10, 20, 30]
 
-d = DataFrame(effect = String[], power = Float64[], item_n = Int[])
+# fixed
+nsims = 1000
+new_beta = [0, 0.4, 0.1, 0]
+new_sigma = 2.0
+new_theta = [1.0, 1.0]
 
-for item_n in item_ns
-    s = mysim(sub_n, item_n, nsims, new_beta, new_sigma, new_theta);
-    pt = power_table(s, m1_names)
-    #pt.item_n = item_n
-    pt[!, :item_n] .= item_n
-    append!(d, pt)
+d = DataFrame(effect = String[], 
+              power = Float64[], 
+              item_n = Int[], 
+              sub_n = Int[])
+
+for sub_n in sub_ns
+    for item_n in item_ns
+        s = mysim(sub_n, item_n, nsims, new_beta, new_sigma, new_theta);
+        pt = power_table(s, m1_names)
+        #pt.item_n = item_n
+        pt[!, :item_n] .= item_n
+        pt[!, :sub_n] .= sub_n
+        append!(d, pt)
+    end
 end
+
+CSV.write("power.csv", d)
 
 d
 ```

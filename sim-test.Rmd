@@ -10,3 +10,15 @@ knitr::opts_chunk$set(echo = TRUE)
 
 library(tidyverse)
 ```
+
+```{r}
+dat <- read_csv("power.csv")
+
+ggplot(dat, aes(x = sub_n, y = power, 
+                color = as.factor(item_n))) +
+  geom_line() +
+  geom_point() +
+  facet_wrap(~effect)
+  
+```
+
