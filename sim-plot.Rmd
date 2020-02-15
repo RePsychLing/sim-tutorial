@@ -1,0 +1,32 @@
+---
+title: "Untitled"
+author: "Lisa"
+date: "14/02/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+```
+
+```{r}
+dat <- read_csv("power.csv")
+```
+
+
+```{r, fig.width = 7, fig.height = 5}
+dat %>%
+  filter(!coefnames %in% c("(Intercept)")) %>%
+  mutate(coefnames = factor(coefnames, levels = coefnames[1:3])) %>%
+  ggplot(aes(x = sub_n, y = power, 
+             color = factor(item_n))) +
+  geom_line() +
+  geom_point() +
+  facet_wrap(~coefnames) +
+  scale_color_discrete(name = "Number of items") +
+  xlab("Number of subjects")
+  
+```
+
