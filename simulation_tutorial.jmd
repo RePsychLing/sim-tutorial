@@ -11,7 +11,7 @@ date: 2020-02-17
 Load the packages we'll be using in Julia. In pkg run the following to get the versions we're using:
 
 * `add MixedModels#master`
-* `add https://github.com/RePsychLing/MixedModelsSim.jl#simtutorial`
+* `add https://github.com/RePsychLing/MixedModelsSim.jl#master`
 
 ```{julia;label=packages;term=true}
 
@@ -139,7 +139,7 @@ ggplot_betas(kb07_sim, "fig/kb07_betas.png");
 
 ```
 
-In documents you want to weave, save the image to a file and use markdown to display the file. Add a semicolon to the end of the function to supporess creating the images in new windows during weaving.
+In documents you want to weave, save the image to a file and use markdown to display the file. Add a semicolon to the end of the function to suppress creating the images in new windows during weaving.
 
 ![](fig/kb07_betas.png)
 

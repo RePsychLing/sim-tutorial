@@ -667,7 +667,7 @@ div.title {text-align: center;}
 <ul>
 <li><p><code>add MixedModels#master</code></p>
 </li>
-<li><p><code>add https://github.com/RePsychLing/MixedModelsSim.jl#simtutorial</code></p>
+<li><p><code>add https://github.com/RePsychLing/MixedModelsSim.jl#master</code></p>
 </li>
 </ul>
 
@@ -835,7 +835,7 @@ load: yes         78.5904    16.0785     4.89   &lt;1e-5
 
 
 
-<p>In documents you want to weave, save the image to a file and use markdown to display the file. Add a semicolon to the end of the function to supporess creating the images in new windows during weaving.</p>
+<p>In documents you want to weave, save the image to a file and use markdown to display the file. Add a semicolon to the end of the function to suppress creating the images in new windows during weaving.</p>
 <p><img src="fig/kb07_betas.png" alt="" /></p>
 <h3>Power calculation</h3>
 <p>The function <code>power_table&#40;&#41;</code> from <code>MixedModelsSim</code> takes the output of <code>simulate_waldtests&#40;&#41;</code> and calculates the proportion of simulations where the p-value is less than alpha for each coefficient. You can set the <code>alpha</code> argument to change the default value of 0.05 &#40;justify your alpha ;&#41;.</p>
@@ -910,23 +910,23 @@ load: yes         78.5904    16.0785     4.89   &lt;1e-5
 Linear mixed model fit by maximum likelihood
  dv ~ 1 &#43; age &#43; condition &#43; age &amp; condition &#43; &#40;1 | item&#41; &#43; &#40;1 | subj&#41;
    logLik   -2 logLik     AIC        BIC    
- -1678.5900  3357.1800  3371.1800  3406.8105
+ -1660.4894  3320.9788  3334.9788  3370.6093
 
 Variance components:
-            Column     Variance   Std.Dev.  
-item     &#40;Intercept&#41;  0.000000000 0.00000000
-subj     &#40;Intercept&#41;  0.006641693 0.08149658
-Residual              0.955004364 0.97724325
+            Column    Variance   Std.Dev. 
+item     &#40;Intercept&#41;  0.00000000 0.0000000
+subj     &#40;Intercept&#41;  0.00000000 0.0000000
+Residual              0.93202582 0.9654148
  Number of obs: 1200; levels of grouping factors: 30, 20
 
   Fixed-effects parameters:
 ──────────────────────────────────────────────────────────────
                          Estimate  Std.Error  z value  P&#40;&gt;|z|&#41;
 ──────────────────────────────────────────────────────────────
-&#40;Intercept&#41;             0.0377584  0.0335845     1.12   0.2609
-age: Y                  0.0338764  0.0335845     1.01   0.3131
-condition: B           -0.0122389  0.0282106    -0.43   0.6644
-age: Y &amp; condition: B   0.0152168  0.0282106     0.54   0.5896
+&#40;Intercept&#41;             0.0333511  0.0278691     1.20   0.2314
+age: Y                 -0.0349208  0.0278691    -1.25   0.2102
+condition: B           -0.048783   0.0278691    -1.75   0.0800
+age: Y &amp; condition: B  -0.0191283  0.0278691    -0.69   0.4925
 ──────────────────────────────────────────────────────────────
 </pre>
 
@@ -1047,7 +1047,7 @@ mysim &#40;generic function with 6 methods&#41;
 
 
 
-<table class="data-frame"><thead><tr><th></th><th>item_n</th><th>sub_n</th><th>(Intercept)</th><th>age: Y</th><th>age: Y &amp; condition: B</th><th>condition: B</th></tr><tr><th></th><th>Int64</th><th>Int64</th><th>Float64⍰</th><th>Float64⍰</th><th>Float64⍰</th><th>Float64⍰</th></tr></thead><tbody><p>9 rows × 6 columns</p><tr><th>1</th><td>10</td><td>20</td><td>0.073</td><td>0.257</td><td>0.055</td><td>0.287</td></tr><tr><th>2</th><td>10</td><td>30</td><td>0.062</td><td>0.319</td><td>0.056</td><td>0.394</td></tr><tr><th>3</th><td>10</td><td>40</td><td>0.098</td><td>0.414</td><td>0.051</td><td>0.521</td></tr><tr><th>4</th><td>20</td><td>20</td><td>0.057</td><td>0.258</td><td>0.044</td><td>0.498</td></tr><tr><th>5</th><td>20</td><td>30</td><td>0.059</td><td>0.335</td><td>0.04</td><td>0.695</td></tr><tr><th>6</th><td>20</td><td>40</td><td>0.061</td><td>0.473</td><td>0.049</td><td>0.791</td></tr><tr><th>7</th><td>30</td><td>20</td><td>0.062</td><td>0.256</td><td>0.054</td><td>0.692</td></tr><tr><th>8</th><td>30</td><td>30</td><td>0.057</td><td>0.346</td><td>0.056</td><td>0.843</td></tr><tr><th>9</th><td>30</td><td>40</td><td>0.065</td><td>0.447</td><td>0.061</td><td>0.92</td></tr></tbody></table>
+<table class="data-frame"><thead><tr><th></th><th>item_n</th><th>sub_n</th><th>(Intercept)</th><th>age: Y</th><th>age: Y &amp; condition: B</th><th>condition: B</th></tr><tr><th></th><th>Int64</th><th>Int64</th><th>Float64⍰</th><th>Float64⍰</th><th>Float64⍰</th><th>Float64⍰</th></tr></thead><tbody><p>9 rows × 6 columns</p><tr><th>1</th><td>10</td><td>20</td><td>0.087</td><td>0.243</td><td>0.045</td><td>0.297</td></tr><tr><th>2</th><td>10</td><td>30</td><td>0.081</td><td>0.344</td><td>0.062</td><td>0.415</td></tr><tr><th>3</th><td>10</td><td>40</td><td>0.093</td><td>0.422</td><td>0.056</td><td>0.505</td></tr><tr><th>4</th><td>20</td><td>20</td><td>0.063</td><td>0.26</td><td>0.055</td><td>0.519</td></tr><tr><th>5</th><td>20</td><td>30</td><td>0.065</td><td>0.343</td><td>0.045</td><td>0.718</td></tr><tr><th>6</th><td>20</td><td>40</td><td>0.047</td><td>0.438</td><td>0.053</td><td>0.82</td></tr><tr><th>7</th><td>30</td><td>20</td><td>0.058</td><td>0.246</td><td>0.047</td><td>0.676</td></tr><tr><th>8</th><td>30</td><td>30</td><td>0.067</td><td>0.355</td><td>0.053</td><td>0.844</td></tr><tr><th>9</th><td>30</td><td>40</td><td>0.068</td><td>0.449</td><td>0.059</td><td>0.939</td></tr></tbody></table>
 
 <h2>Convert this file</h2>
 

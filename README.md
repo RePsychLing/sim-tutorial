@@ -11,7 +11,7 @@ date: 2020-02-17
 Load the packages we'll be using in Julia. In pkg run the following to get the versions we're using:
 
 * `add MixedModels#master`
-* `add https://github.com/RePsychLing/MixedModelsSim.jl#simtutorial`
+* `add https://github.com/RePsychLing/MixedModelsSim.jl#master`
 
 ~~~~{.julia}
 julia> using MixedModels        # run mixed models
@@ -204,7 +204,7 @@ ggplot_betas(kb07_sim, "fig/kb07_betas.png");
 
 
 
-In documents you want to weave, save the image to a file and use markdown to display the file. Add a semicolon to the end of the function to supporess creating the images in new windows during weaving.
+In documents you want to weave, save the image to a file and use markdown to display the file. Add a semicolon to the end of the function to suppress creating the images in new windows during weaving.
 
 ![](fig/kb07_betas.png)
 
@@ -316,24 +316,24 @@ m1 = fit(MixedModel, f1, dat, contrasts=contrasts)
 Linear mixed model fit by maximum likelihood
  dv ~ 1 + age + condition + age & condition + (1 | item) + (1 | subj)
    logLik   -2 logLik     AIC        BIC    
- -1726.7961  3453.5923  3467.5923  3503.2228
+ -1732.2943  3464.5885  3478.5885  3514.2191
 
 Variance components:
-            Column   Variance  Std.Dev. 
-item     (Intercept)  0.000000 0.0000000
-subj     (Intercept)  0.000000 0.0000000
-Residual              1.040932 1.0202608
+            Column     Variance   Std.Dev.  
+item     (Intercept)  0.006272732 0.07920058
+subj     (Intercept)  0.000000000 0.00000000
+Residual              1.044877433 1.02219246
  Number of obs: 1200; levels of grouping factors: 30, 20
 
   Fixed-effects parameters:
-──────────────────────────────────────────────────────────────
-                         Estimate  Std.Error  z value  P(>|z|)
-──────────────────────────────────────────────────────────────
-(Intercept)            -0.0303299  0.0294524    -1.03   0.3031
-age: Y                  0.0149389  0.0294524     0.51   0.6120
-condition: B            0.0180804  0.0294524     0.61   0.5393
-age: Y & condition: B  -0.0124401  0.0294524    -0.42   0.6727
-──────────────────────────────────────────────────────────────
+───────────────────────────────────────────────────────────────
+                          Estimate  Std.Error  z value  P(>|z|)
+───────────────────────────────────────────────────────────────
+(Intercept)            -0.0240362   0.0328606    -0.73   0.4645
+age: Y                 -0.0142197   0.0295082    -0.48   0.6299
+condition: B           -0.00221285  0.0295082    -0.07   0.9402
+age: Y & condition: B  -0.00459405  0.0295082    -0.16   0.8763
+───────────────────────────────────────────────────────────────
 ~~~~
 
 
@@ -480,15 +480,15 @@ unstack(d, :coefname, :power)
 │ Row │ item_n │ sub_n │ (Intercept) │ age: Y   │ age: Y & condition: B │
 │     │ Int64  │ Int64 │ Float64⍰    │ Float64⍰ │ Float64⍰              │
 ├─────┼────────┼───────┼─────────────┼──────────┼───────────────────────┤
-│ 1   │ 10     │ 20    │ 0.073       │ 0.248    │ 0.037                 │
-│ 2   │ 10     │ 30    │ 0.069       │ 0.324    │ 0.044                 │
-│ 3   │ 10     │ 40    │ 0.079       │ 0.405    │ 0.064                 │
-│ 4   │ 20     │ 20    │ 0.063       │ 0.26     │ 0.062                 │
-│ 5   │ 20     │ 30    │ 0.058       │ 0.348    │ 0.055                 │
-│ 6   │ 20     │ 40    │ 0.072       │ 0.427    │ 0.044                 │
-│ 7   │ 30     │ 20    │ 0.056       │ 0.252    │ 0.049                 │
-│ 8   │ 30     │ 30    │ 0.048       │ 0.373    │ 0.046                 │
-│ 9   │ 30     │ 40    │ 0.063       │ 0.451    │ 0.054                 │
+│ 1   │ 10     │ 20    │ 0.07        │ 0.257    │ 0.059                 │
+│ 2   │ 10     │ 30    │ 0.081       │ 0.345    │ 0.055                 │
+│ 3   │ 10     │ 40    │ 0.088       │ 0.428    │ 0.046                 │
+│ 4   │ 20     │ 20    │ 0.067       │ 0.274    │ 0.049                 │
+│ 5   │ 20     │ 30    │ 0.066       │ 0.338    │ 0.064                 │
+│ 6   │ 20     │ 40    │ 0.054       │ 0.413    │ 0.048                 │
+│ 7   │ 30     │ 20    │ 0.045       │ 0.289    │ 0.048                 │
+│ 8   │ 30     │ 30    │ 0.058       │ 0.344    │ 0.055                 │
+│ 9   │ 30     │ 40    │ 0.061       │ 0.438    │ 0.058                 │
 ~~~~
 
 

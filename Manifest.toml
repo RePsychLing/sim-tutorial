@@ -269,7 +269,7 @@ version = "2.2.0"
 [[MixedModelsSim]]
 deps = ["DataFrames", "MixedModels", "PooledArrays", "Random", "StaticArrays", "Statistics", "Tables"]
 git-tree-sha1 = "e0b8133b45772cd79bf0a088db6d6813a17e3ad4"
-repo-rev = "simtutorial"
+repo-rev = "master"
 repo-url = "https://github.com/RePsychLing/MixedModelsSim.jl"
 uuid = "d5ae56c5-23ca-4a1f-b505-9fc4796fc1fe"
 version = "0.1.0"
