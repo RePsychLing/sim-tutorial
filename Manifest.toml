@@ -82,10 +82,10 @@ uuid = "861a8166-3701-5b0c-9a16-15d98fcdc6aa"
 version = "1.0.0"
 
 [[Compat]]
-deps = ["Base64", "Dates", "DelimitedFiles", "Distributed", "InteractiveUtils", "LibGit2", "Libdl", "LinearAlgebra", "Markdown", "Mmap", "Pkg", "Printf", "REPL", "Random", "Serialization", "SharedArrays", "Sockets", "SparseArrays", "Statistics", "Test", "UUIDs", "Unicode"]
-git-tree-sha1 = "ed2c4abadf84c53d9e58510b5fc48912c2336fbb"
+deps = ["Base64", "Dates", "DelimitedFiles", "Distributed", "InteractiveUtils", "LibGit2", "Libdl", "LinearAlgebra", "Markdown", "Mmap", "Pkg", "Printf", "REPL", "Random", "SHA", "Serialization", "SharedArrays", "Sockets", "SparseArrays", "Statistics", "Test", "UUIDs", "Unicode"]
+git-tree-sha1 = "a4839bd26e3e7f4869a4cf6c31f9f93f47aac7c5"
 uuid = "34da2185-b29b-5c13-b0c7-acf172513d20"
-version = "2.2.0"
+version = "3.5.0"
 
 [[Conda]]
 deps = ["JSON", "VersionParsing"]
@@ -247,10 +247,10 @@ deps = ["Base64"]
 uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
 
 [[MathProgBase]]
-deps = ["Compat"]
-git-tree-sha1 = "3bf2e534e635df810e5f4b4f1a8b6de9004a0d53"
+deps = ["LinearAlgebra", "SparseArrays"]
+git-tree-sha1 = "9abbe463a1e9fc507f12a69e7f29346c2cdc472c"
 uuid = "fdba3010-5040-5b88-9595-932c9decdf73"
-version = "0.7.7"
+version = "0.7.8"
 
 [[Missings]]
 deps = ["DataAPI"]
@@ -267,9 +267,9 @@ uuid = "ff71e718-51f3-5ec2-a782-8ffcbfa3c316"
 version = "2.2.0"
 
 [[MixedModelsSim]]
-deps = ["DataFrames", "MixedModels", "PooledArrays", "Random", "StaticArrays", "Tables"]
-git-tree-sha1 = "3cb90042626808b56c0d66c261a5fe87d2e632c2"
-repo-rev = "coef-power"
+deps = ["DataFrames", "MixedModels", "PooledArrays", "Random", "StaticArrays", "Statistics", "Tables"]
+git-tree-sha1 = "e0b8133b45772cd79bf0a088db6d6813a17e3ad4"
+repo-rev = "simtutorial"
 repo-url = "https://github.com/RePsychLing/MixedModelsSim.jl"
 uuid = "d5ae56c5-23ca-4a1f-b505-9fc4796fc1fe"
 version = "0.1.0"

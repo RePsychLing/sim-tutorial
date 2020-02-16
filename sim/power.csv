@@ -1,37 +1,37 @@
 coefname,power,item_n,sub_n
-(Intercept),0.087,10,20
-age: Y,0.241,10,20
-condition: B,0.299,10,20
-age: Y & condition: B,0.052,10,20
-(Intercept),0.065,20,20
-age: Y,0.248,20,20
-condition: B,0.503,20,20
-age: Y & condition: B,0.051,20,20
-(Intercept),0.061,30,20
-age: Y,0.231,30,20
-condition: B,0.678,30,20
-age: Y & condition: B,0.047,30,20
-(Intercept),0.076,10,30
-age: Y,0.364,10,30
-condition: B,0.412,10,30
-age: Y & condition: B,0.05,10,30
-(Intercept),0.057,20,30
-age: Y,0.368,20,30
-condition: B,0.681,20,30
-age: Y & condition: B,0.046,20,30
-(Intercept),0.065,30,30
-age: Y,0.309,30,30
-condition: B,0.861,30,30
-age: Y & condition: B,0.043,30,30
-(Intercept),0.092,10,40
-age: Y,0.421,10,40
-condition: B,0.519,10,40
-age: Y & condition: B,0.038,10,40
-(Intercept),0.066,20,40
-age: Y,0.453,20,40
-condition: B,0.806,20,40
-age: Y & condition: B,0.043,20,40
-(Intercept),0.061,30,40
-age: Y,0.42,30,40
-condition: B,0.928,30,40
-age: Y & condition: B,0.041,30,40
+(Intercept),0.086,10,20
+age: Y,0.254,10,20
+condition: B,0.292,10,20
+age: Y & condition: B,0.048,10,20
+(Intercept),0.074,20,20
+age: Y,0.267,20,20
+condition: B,0.525,20,20
+age: Y & condition: B,0.053,20,20
+(Intercept),0.056,30,20
+age: Y,0.266,30,20
+condition: B,0.689,30,20
+age: Y & condition: B,0.06,30,20
+(Intercept),0.08,10,30
+age: Y,0.316,10,30
+condition: B,0.437,10,30
+age: Y & condition: B,0.043,10,30
+(Intercept),0.063,20,30
+age: Y,0.347,20,30
+condition: B,0.671,20,30
+age: Y & condition: B,0.05,20,30
+(Intercept),0.055,30,30
+age: Y,0.355,30,30
+condition: B,0.829,30,30
+age: Y & condition: B,0.049,30,30
+(Intercept),0.094,10,40
+age: Y,0.431,10,40
+condition: B,0.518,10,40
+age: Y & condition: B,0.043,10,40
+(Intercept),0.06,20,40
+age: Y,0.451,20,40
+condition: B,0.81,20,40
+age: Y & condition: B,0.046,20,40
+(Intercept),0.055,30,40
+age: Y,0.458,30,40
+condition: B,0.932,30,40
+age: Y & condition: B,0.058,30,40
