@@ -1,0 +1,89 @@
+---
+title: "simdat_crossed"
+author: "Lisa DeBruine"
+date: 2020-02-17
+---
+
+This tutorial gives examples of the `simdat_crossed` function in `MixedModelsSim`.
+
+## Setup 
+
+```{julia;label=packages;term=true}
+
+using MixedModelsSim     # simulation functions for mixed models
+
+```
+
+## Categorical Factors
+
+### 2 subjects, 2 items, no factors/predictors
+
+```{julia}
+simdat_crossed(2, 2)
+```
+
+### 2 subjects per cell, 2 items, 1 between-subject factor
+
+```{julia}
+subj_btwn = Dict("age" => ["old", "young"])
+simdat_crossed(2, 2, subj_btwn = subj_btwn)
+```
+
+### 2 subjects, 2 items per cell, 1 between-item factor
+
+```{julia}
+item_btwn = Dict("condition" => ["A", "B"])
+simdat_crossed(2, 2, item_btwn = item_btwn)
+```
+
+### 2 subjects, 2 items, 1 within factor
+
+```{julia}
+both_win = Dict("time" => ["morning", "evening"])
+simdat_crossed(2, 2, both_win = both_win)
+```
+
+### design table for between-subject, between-item, within design
+
+```{julia}
+subj_btwn = Dict("age" => ["old", "young"])
+item_btwn = Dict("condition" => ["A", "B"])
+both_win = Dict("time" => ["morning", "evening"])
+simdat_crossed(1, 1, subj_btwn = subj_btwn, item_btwn = item_btwn, both_win = both_win)
+```
+
+## Continuous Predictors
+
+Set continuous predictors for the subjects, items, or observations as vectors. Continuous predictors should be specified as vectors with the distributional properties you want. If the vector has the same length as the total number of subjects, items, or observations, it will be used as is. If it is shorter or longer, values will be sampled from it.
+
+### Right number
+
+```{julia}
+subj_pred = Dict("age" => [21:30])
+simdat_crossed(10, 1, subj_pred = subj_pred)
+```
+
+### Too many
+
+```{julia}
+subj_pred = Dict("age" => [18:50])
+simdat_crossed(10, 1, subj_pred = subj_pred)
+```
+
+### Not enough
+
+```{julia}
+subj_pred = Dict("age" => [18:20])
+simdat_crossed(10, 1, subj_pred = subj_pred)
+```
+
+### Continuous predictors with categorical factors
+
+Remember that the number of total subjects, items, or observations depends on the number of factors and their levels.
+
+```{julia}
+subj_btwn = Dict("age" => ["old", "young"])
+subj_pred = Dict("score" => randn(20)) # there are 20 subjects; 10 old, 10 young
+simdat_crossed(10, 1, subj_btwn = subj_btwn, subj_pred = subj_pred)
+```
+
