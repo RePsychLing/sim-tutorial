@@ -15,13 +15,13 @@ Load the packages we'll be using in Julia. In pkg run the following to get the v
 
 ```{julia;label=packages;term=true}
 
-
 using MixedModels        # run mixed models
 using MixedModelsSim     # simulation functions for mixed models
 using RCall              # call R functions from inside Julia
 using DataFrames, Tables # work with data tables
-using Random             # statistical functions
+using Random             # random number generator
 using CSV                # write CSV files
+
 ```
 
 ### R
@@ -29,11 +29,13 @@ using CSV                # write CSV files
 Also load any packages we'll be using in R through `RCall()`.
 
 ```{julia;label=Rlibs}
+
 R"""
 library(ggplot2) # for visualisation
 library(dplyr)   # for data wrangling
 library(tidyr)   # for data wrangling
 """;
+
 ```
 
 ### Define Custom functions
@@ -44,7 +46,9 @@ setting up your script and change it to a larger number when everything
 is debugged.
 
 ```{julia;label=scriptvars}
+
 nsims = 1000 # set to a low number for test, high for production
+
 ```
 
 #### Define: ggplot_betas
@@ -124,13 +128,18 @@ CSV.write("sim/kb07_sim.csv", kb07_sim_df)
 
 ```
 
-Plot betas in ggplot.
+Plot betas in ggplot. In the code editor or Jupyter notebooks, you can omit the file name to just display the figure in an external window. 
 
 ```{julia}
+# just display the image
+# ggplot_betas(kb07_sim) 
 
+# save the image to a file and display (display doesn't work in weave)
 ggplot_betas(kb07_sim, "fig/kb07_betas.png");
 
 ```
+
+In documents you want to weave, save the image to a file and use markdown to display the file. Add a semicolon to the end of the function to supporess creating the images in new windows during weaving.
 
 ![](fig/kb07_betas.png)
 
@@ -332,6 +341,6 @@ unstack(d, :coefname, :power)
 # convert_doc("simulation_tutorial.jmd", "simulation_tutorial.ipynb")
 
 # convert to md for README
-# weave("simulation_tutorial.jmd", doctype="pandoc", out.path = "README.md")
+# weave("simulation_tutorial.jmd", doctype="pandoc", out_path = "README.md")
 
 ```

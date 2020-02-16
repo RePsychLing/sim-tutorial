@@ -8,7 +8,10 @@ date: 2020-02-17
 
 ### Julia
 
-Load the packages we'll be using in Julia
+Load the packages we'll be using in Julia. In pkg run the following to get the versions we're using:
+
+* `add MixedModels#master`
+* `add https://github.com/RePsychLing/MixedModelsSim.jl#simtutorial`
 
 ~~~~{.julia}
 julia> using MixedModels        # run mixed models
@@ -19,7 +22,7 @@ julia> using RCall              # call R functions from inside Julia
 
 julia> using DataFrames, Tables # work with data tables
 
-julia> using Random, Statistics # statistical functions
+julia> using Random             # random number generator
 
 julia> using CSV                # write CSV files
 
@@ -59,98 +62,6 @@ nsims = 1000 # set to a low number for test, high for production
 
 ~~~~
 1000
-~~~~
-
-
-
-~~~~{.julia}
-# hopefully in MixedModelsSim soon
-
-function sim_to_df(sims)
-    tab = DataFrame()
-    for (i, sim) in enumerate(sims)
-        df = DataFrame(sim)
-        df[!, :iteration] .= i
-        df[!, :var] .= string.(collect(keys(sim)))
-        append!(tab, df)
-    end
-    longtab = stack(tab, 1:(ncol(tab)-2), variable_name = :coefname)
-    widetab = unstack(longtab, :var, :value)
-    rename!(widetab, ["coefname", "iteration",  "p",  "se",  "z",  "beta" ])
-    sort!(widetab, [:iteration])
-    select!(widetab, [:iteration, :coefname, :beta, :se, :z, :p])
-end
-
-function power_table(sim, alpha = 0.05)
-    pvals = DataFrame(columntable(sim).p)
-    pvals = stack(pvals) 
-    pwr = by(pvals, :variable, :value => x->mean(x.<alpha) )
-    rename!(pwr, ["coefname", "power"])
-end
-
-function simdat_crossed(subj_n = 1, item_n = 1;
-    subj_btwn = nothing, item_btwn = nothing, both_win = nothing)
-
-    # set up subj table
-    if isnothing(subj_btwn)
-        subj_vals = [nlevels(subj_n, "S")]
-        sb_vars = []
-    else
-        sc = values(subj_btwn) |> collect
-        sc = vcat([nlevels(subj_n)], sc)
-        subj_prod = Iterators.product(sc...)
-        subj_total_n = length(subj_prod)
-        subj_vals = columntable(subj_prod) |> collect
-        subj_vals[1] = nlevels(subj_total_n, "S")
-        sb_vars = collect(keys(subj_btwn))
-    end
-
-    subj_names = vcat(["subj"], sb_vars)
-    subj = NamedTuple{Tuple(Symbol.(subj_names))}(subj_vals)
-
-    # set up item table
-    if isnothing(item_btwn)
-        item_vals = [nlevels(item_n, "I")]
-        ib_vars = []
-    else
-        ic = values(item_btwn) |> collect
-        ic = vcat([nlevels(item_n, "I")], ic)
-        item_prod = Iterators.product(ic...)
-        item_total_n = length(item_prod)
-        item_vals = columntable(item_prod) |> collect
-        item_vals[1] = nlevels(item_total_n, "I")
-        ib_vars = collect(keys(item_btwn))
-    end
-
-    item_names = vcat(["item"], ib_vars)
-    item = NamedTuple{Tuple(Symbol.(item_names))}(item_vals)
-
-    # set up within both table
-    if (isnothing(both_win))
-        # cross the subject and item tables 
-        design = factorproduct(subj, item) |> DataFrame
-    else 
-        wc = values(both_win) |> collect
-        win_prod = Iterators.product(wc...)
-        win_vals = columntable(win_prod) |> collect
-        win_names = collect(keys(both_win))
-        win = NamedTuple{Tuple(Symbol.(win_names))}(win_vals)
-
-        # cross the subject and item tables with any within factors 
-        design = factorproduct(subj, item, win) |> DataFrame
-    end
-
-    # add random numbers as a DV
-    design.dv = randn(nrow(design))
-
-    design
-
-end
-~~~~~~~~~~~~~
-
-
-~~~~
-simdat_crossed (generic function with 3 methods)
 ~~~~
 
 
@@ -244,21 +155,23 @@ load: yes         78.5904    16.0785     4.89   <1e-5
 
 ### Simulate data with same parameters
 
-Use the `simulate_waldtests()` function to run 1000 iterations of data sampled 
-using the parameters from `m4`. Set up a random seed to make the simulation reproducible. 
-You can use your favourite number.
+Use the `simulate_waldtests()` function to run 1000 iterations of data sampled using the parameters from `m4`. Set up a random seed to make the simulation reproducible. You can use your favourite number.
+
+To use multithreading, you need to set the number of cores you want to use. In Visual Studio Code, open the settings (gear icon in the lower left corner or cmd-,) and search for "thread". Set `julia.NumThreads` to the number of cores you want to use (at least 1 less than your total number).
 
 ~~~~{.julia}
-# seed for reproducibility
+# set seed for reproducibility
 rng = MersenneTwister(8675309);
 
-# run 1000 iterations
+# run nsims iterations
 kb07_sim = simulate_waldtests(rng, nsims, kb07_m, use_threads = true);
 ~~~~~~~~~~~~~
 
 
 
 
+
+**Try**: Run the code above with and without `use_threads`.
 
 Save all data to a csv file.
 
@@ -277,9 +190,13 @@ CSV.write("sim/kb07_sim.csv", kb07_sim_df)
 
 
 
-Plot betas in ggplot.
+Plot betas in ggplot. In the code editor or Jupyter notebooks, you can omit the file name to just display the figure in an external window. 
 
 ~~~~{.julia}
+# just display the image
+# ggplot_betas(kb07_sim) 
+
+# save the image to a file and display (display doesn't work in weave)
 ggplot_betas(kb07_sim, "fig/kb07_betas.png");
 ~~~~~~~~~~~~~
 
@@ -287,10 +204,14 @@ ggplot_betas(kb07_sim, "fig/kb07_betas.png");
 
 
 
-![](fig/m4_betas.png)
+In documents you want to weave, save the image to a file and use markdown to display the file. Add a semicolon to the end of the function to supporess creating the images in new windows during weaving.
+
+![](fig/kb07_betas.png)
 
 
 ### Power calculation
+
+The function `power_table()` from `MixedModelsSim` takes the output of `simulate_waldtests()` and calculates the proportion of simulations where the p-value is less than alpha for each coefficient. You can set the `alpha` argument to change the default value of 0.05 (justify your alpha ;).
 
 ~~~~{.julia}
 power_table(kb07_sim)
@@ -298,7 +219,7 @@ power_table(kb07_sim)
 
 
 ~~~~
-4×2 DataFrame
+4×2 DataFrames.DataFrame
 │ Row │ coefname       │ power   │
 │     │ Symbol         │ Float64 │
 ├─────┼────────────────┼─────────┤
@@ -329,7 +250,7 @@ power_table(kb07_sim_half)
 
 
 ~~~~
-4×2 DataFrame
+4×2 DataFrames.DataFrame
 │ Row │ coefname       │ power   │
 │     │ Symbol         │ Float64 │
 ├─────┼────────────────┼─────────┤
@@ -349,54 +270,37 @@ power_table(kb07_sim_half)
 
 ## simdat_crossed
 
-We will set a design where `subj_n` subjects per `age` group (O or Y) respond to `item_n` items in each of two `condition`s (A or B). Create a simulated data structure with `simdat(sub_n, item_n)`.
+The `simdat_crossed()` function from `MixedModelsSim` lets you set up a data frame with a specified experimental design. For now, it only makes fully balanced crossed designs, but you can generate an unbalanced design by simulating data for the largest cell and deleting extra rows. 
 
+We will set a design where `subj_n` subjects per `age` group (O or Y) respond to `item_n` items in each of two `condition`s (A or B).
 
-Running the function with the defaults gives you the general experimental design structure
-(i.e., 1 subject and 1 stimulus in each cell).
+Your factors need to be specified separately for between-subject, between-item, and within-subject/item factors using `Dict` with the name of each factor as the keys and vectors with the names of the levels as values.
 
 ~~~~{.julia}
 # put between-subject factors in a Dict
 subj_btwn = Dict("age" => ["O", "Y"])
 
+# there are no between-item factors in this design so you can omit it or set it to nothing
+item_btwn = nothing
+
 # put within-subject/item factors in a Dict
 both_win = Dict("condition" => ["A", "B"])
 
 # simulate data
-dat = simdat_crossed(10, 30, subj_btwn = subj_btwn, both_win = both_win )
+dat = simdat_crossed(10, 30, 
+                     subj_btwn = subj_btwn, 
+                     item_btwn = item_btwn, 
+                     both_win = both_win);
 ~~~~~~~~~~~~~
 
 
-~~~~
-1200×5 DataFrame
-│ Row  │ subj   │ age    │ item   │ condition │ dv          │
-│      │ String │ String │ String │ String    │ Float64     │
-├──────┼────────┼────────┼────────┼───────────┼─────────────┤
-│ 1    │ S01    │ O      │ I01    │ A         │ -0.74541    │
-│ 2    │ S02    │ O      │ I01    │ A         │ -0.185877   │
-│ 3    │ S03    │ O      │ I01    │ A         │ 0.467144    │
-│ 4    │ S04    │ O      │ I01    │ A         │ -0.0708465  │
-│ 5    │ S05    │ O      │ I01    │ A         │ 0.0503274   │
-│ 6    │ S06    │ O      │ I01    │ A         │ 0.156241    │
-│ 7    │ S07    │ O      │ I01    │ A         │ 0.108081    │
-⋮
-│ 1193 │ S13    │ Y      │ I30    │ B         │ -0.00126841 │
-│ 1194 │ S14    │ Y      │ I30    │ B         │ 0.308785    │
-│ 1195 │ S15    │ Y      │ I30    │ B         │ 1.29083     │
-│ 1196 │ S16    │ Y      │ I30    │ B         │ 1.35084     │
-│ 1197 │ S17    │ Y      │ I30    │ B         │ 0.0988229   │
-│ 1198 │ S18    │ Y      │ I30    │ B         │ 2.04914     │
-│ 1199 │ S19    │ Y      │ I30    │ B         │ 0.267711    │
-│ 1200 │ S20    │ Y      │ I30    │ B         │ -0.973232   │
-~~~~
 
 
 
 
+## Fit a model
 
-```
-
-## Set up model
+Now you need to fit a model to your simulated data. Because the `dv` is just random numbers from N(0,1), there will be basically no subject or item random variance, residual variance will be near 1.0, and the estimates for all effects should be small. Don't worry, we'll specify fixed and random effects directly in `simulate_waldtests`. 
 
 ~~~~{.julia}
 # set contrasts
@@ -412,36 +316,33 @@ m1 = fit(MixedModel, f1, dat, contrasts=contrasts)
 Linear mixed model fit by maximum likelihood
  dv ~ 1 + age + condition + age & condition + (1 | item) + (1 | subj)
    logLik   -2 logLik     AIC        BIC    
- -1713.4070  3426.8140  3440.8140  3476.4446
+ -1726.7961  3453.5923  3467.5923  3503.2228
 
 Variance components:
-            Column     Variance    Std.Dev.  
-item     (Intercept)  0.0021642529 0.04652153
-subj     (Intercept)  0.0000000000 0.00000000
-Residual              1.0158815838 1.00790951
+            Column   Variance  Std.Dev. 
+item     (Intercept)  0.000000 0.0000000
+subj     (Intercept)  0.000000 0.0000000
+Residual              1.040932 1.0202608
  Number of obs: 1200; levels of grouping factors: 30, 20
 
   Fixed-effects parameters:
-───────────────────────────────────────────────────────────────
-                          Estimate  Std.Error  z value  P(>|z|)
-───────────────────────────────────────────────────────────────
-(Intercept)            -0.0213609   0.0303102    -0.70   0.4810
-age: Y                  0.00760056  0.0290958     0.26   0.7939
-condition: B            0.0668792   0.0290958     2.30   0.0215
-age: Y & condition: B  -0.0258042   0.0290958    -0.89   0.3751
-───────────────────────────────────────────────────────────────
+──────────────────────────────────────────────────────────────
+                         Estimate  Std.Error  z value  P(>|z|)
+──────────────────────────────────────────────────────────────
+(Intercept)            -0.0303299  0.0294524    -1.03   0.3031
+age: Y                  0.0149389  0.0294524     0.51   0.6120
+condition: B            0.0180804  0.0294524     0.61   0.5393
+age: Y & condition: B  -0.0124401  0.0294524    -0.42   0.6727
+──────────────────────────────────────────────────────────────
 ~~~~
 
 
 
 
 
-Because the `dv` is just random numbers from N(0,1), there will be basically no subject or item random variance, residual variance will be near 1.0, and the estimates for all effects should be small. Now we can specify fixed and random effects directly in `simulate_waldtests`. 
-
 ## Simulate
 
-* Set a seed for reproducibility
-* specify new β, σ, and θ
+Set a seed for reproducibility and specify β, σ, and θ.
 
 ~~~~{.julia}
 rng = MersenneTwister(8675309);
@@ -484,7 +385,7 @@ power_table(sim1)
 
 
 ~~~~
-4×2 DataFrame
+4×2 DataFrames.DataFrame
 │ Row │ coefname              │ power   │
 │     │ Symbol                │ Float64 │
 ├─────┼───────────────────────┼─────────┤
@@ -575,19 +476,19 @@ unstack(d, :coefname, :power)
 
 
 ~~~~
-9×6 DataFrame. Omitted printing of 1 columns
+9×6 DataFrames.DataFrame. Omitted printing of 1 columns
 │ Row │ item_n │ sub_n │ (Intercept) │ age: Y   │ age: Y & condition: B │
 │     │ Int64  │ Int64 │ Float64⍰    │ Float64⍰ │ Float64⍰              │
 ├─────┼────────┼───────┼─────────────┼──────────┼───────────────────────┤
-│ 1   │ 10     │ 20    │ 0.087       │ 0.241    │ 0.052                 │
-│ 2   │ 10     │ 30    │ 0.076       │ 0.364    │ 0.05                  │
-│ 3   │ 10     │ 40    │ 0.092       │ 0.421    │ 0.038                 │
-│ 4   │ 20     │ 20    │ 0.065       │ 0.248    │ 0.051                 │
-│ 5   │ 20     │ 30    │ 0.057       │ 0.368    │ 0.046                 │
-│ 6   │ 20     │ 40    │ 0.066       │ 0.453    │ 0.043                 │
-│ 7   │ 30     │ 20    │ 0.061       │ 0.231    │ 0.047                 │
-│ 8   │ 30     │ 30    │ 0.065       │ 0.309    │ 0.043                 │
-│ 9   │ 30     │ 40    │ 0.061       │ 0.42     │ 0.041                 │
+│ 1   │ 10     │ 20    │ 0.073       │ 0.248    │ 0.037                 │
+│ 2   │ 10     │ 30    │ 0.069       │ 0.324    │ 0.044                 │
+│ 3   │ 10     │ 40    │ 0.079       │ 0.405    │ 0.064                 │
+│ 4   │ 20     │ 20    │ 0.063       │ 0.26     │ 0.062                 │
+│ 5   │ 20     │ 30    │ 0.058       │ 0.348    │ 0.055                 │
+│ 6   │ 20     │ 40    │ 0.072       │ 0.427    │ 0.044                 │
+│ 7   │ 30     │ 20    │ 0.056       │ 0.252    │ 0.049                 │
+│ 8   │ 30     │ 30    │ 0.048       │ 0.373    │ 0.046                 │
+│ 9   │ 30     │ 40    │ 0.063       │ 0.451    │ 0.054                 │
 ~~~~
 
 
@@ -607,6 +508,6 @@ unstack(d, :coefname, :power)
 # convert_doc("simulation_tutorial.jmd", "simulation_tutorial.ipynb")
 
 # convert to md for README
-# weave("simulation_tutorial.jmd", doctype="pandoc", out.path = "README.md")
+# weave("simulation_tutorial.jmd", doctype="pandoc", out_path = "README.md")
 ~~~~~~~~~~~~~
 

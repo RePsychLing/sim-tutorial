@@ -680,7 +680,7 @@ div.title {text-align: center;}
 
 </span><span class='hljl-nB'>julia&gt; </span><span class='hljl-k'>using</span><span class='hljl-t'> </span><span class='hljl-n'>DataFrames</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>Tables</span><span class='hljl-t'> </span><span class='hljl-cs'># work with data tables</span><span class='hljl-t'>
 
-</span><span class='hljl-nB'>julia&gt; </span><span class='hljl-k'>using</span><span class='hljl-t'> </span><span class='hljl-n'>Random</span><span class='hljl-t'>             </span><span class='hljl-cs'># statistical functions</span><span class='hljl-t'>
+</span><span class='hljl-nB'>julia&gt; </span><span class='hljl-k'>using</span><span class='hljl-t'> </span><span class='hljl-n'>Random</span><span class='hljl-t'>             </span><span class='hljl-cs'># random number generator</span><span class='hljl-t'>
 
 </span><span class='hljl-nB'>julia&gt; </span><span class='hljl-k'>using</span><span class='hljl-t'> </span><span class='hljl-n'>CSV</span><span class='hljl-t'>                </span><span class='hljl-cs'># write CSV files</span><span class='hljl-t'>s</span>
 </pre>
@@ -822,15 +822,20 @@ load: yes         78.5904    16.0785     4.89   &lt;1e-5
 </pre>
 
 
-<p>Plot betas in ggplot.</p>
+<p>Plot betas in ggplot. In the code editor or Jupyter notebooks, you can omit the file name to just display the figure in an external window. </p>
 
 
 <pre class='hljl'>
-<span class='hljl-nf'>ggplot_betas</span><span class='hljl-p'>(</span><span class='hljl-n'>kb07_sim</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-s'>&quot;fig/kb07_betas.png&quot;</span><span class='hljl-p'>);</span>
+<span class='hljl-cs'># just display the image</span><span class='hljl-t'>
+</span><span class='hljl-cs'># ggplot_betas(kb07_sim) </span><span class='hljl-t'>
+
+</span><span class='hljl-cs'># save the image to a file and display (display doesn&#39;t work in weave)</span><span class='hljl-t'>
+</span><span class='hljl-nf'>ggplot_betas</span><span class='hljl-p'>(</span><span class='hljl-n'>kb07_sim</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-s'>&quot;fig/kb07_betas.png&quot;</span><span class='hljl-p'>);</span>
 </pre>
 
 
 
+<p>In documents you want to weave, save the image to a file and use markdown to display the file. Add a semicolon to the end of the function to supporess creating the images in new windows during weaving.</p>
 <p><img src="fig/kb07_betas.png" alt="" /></p>
 <h3>Power calculation</h3>
 <p>The function <code>power_table&#40;&#41;</code> from <code>MixedModelsSim</code> takes the output of <code>simulate_waldtests&#40;&#41;</code> and calculates the proportion of simulations where the p-value is less than alpha for each coefficient. You can set the <code>alpha</code> argument to change the default value of 0.05 &#40;justify your alpha ;&#41;.</p>
@@ -905,23 +910,23 @@ load: yes         78.5904    16.0785     4.89   &lt;1e-5
 Linear mixed model fit by maximum likelihood
  dv ~ 1 &#43; age &#43; condition &#43; age &amp; condition &#43; &#40;1 | item&#41; &#43; &#40;1 | subj&#41;
    logLik   -2 logLik     AIC        BIC    
- -1693.9420  3387.8839  3401.8839  3437.5145
+ -1678.5900  3357.1800  3371.1800  3406.8105
 
 Variance components:
-            Column     Variance    Std.Dev.  
-item     &#40;Intercept&#41;  0.0000000000 0.00000000
-subj     &#40;Intercept&#41;  0.0060785228 0.07796488
-Residual              0.9802847726 0.99009332
+            Column     Variance   Std.Dev.  
+item     &#40;Intercept&#41;  0.000000000 0.00000000
+subj     &#40;Intercept&#41;  0.006641693 0.08149658
+Residual              0.955004364 0.97724325
  Number of obs: 1200; levels of grouping factors: 30, 20
 
   Fixed-effects parameters:
 ──────────────────────────────────────────────────────────────
                          Estimate  Std.Error  z value  P&#40;&gt;|z|&#41;
 ──────────────────────────────────────────────────────────────
-&#40;Intercept&#41;            -0.0168788  0.0334788    -0.50   0.6141
-age: Y                 -0.0142723  0.0334788    -0.43   0.6699
-condition: B           -0.0166017  0.0285815    -0.58   0.5613
-age: Y &amp; condition: B   0.0262142  0.0285815     0.92   0.3591
+&#40;Intercept&#41;             0.0377584  0.0335845     1.12   0.2609
+age: Y                  0.0338764  0.0335845     1.01   0.3131
+condition: B           -0.0122389  0.0282106    -0.43   0.6644
+age: Y &amp; condition: B   0.0152168  0.0282106     0.54   0.5896
 ──────────────────────────────────────────────────────────────
 </pre>
 
@@ -1042,7 +1047,7 @@ mysim &#40;generic function with 6 methods&#41;
 
 
 
-<table class="data-frame"><thead><tr><th></th><th>item_n</th><th>sub_n</th><th>(Intercept)</th><th>age: Y</th><th>age: Y &amp; condition: B</th><th>condition: B</th></tr><tr><th></th><th>Int64</th><th>Int64</th><th>Float64⍰</th><th>Float64⍰</th><th>Float64⍰</th><th>Float64⍰</th></tr></thead><tbody><p>9 rows × 6 columns</p><tr><th>1</th><td>10</td><td>20</td><td>0.086</td><td>0.254</td><td>0.048</td><td>0.292</td></tr><tr><th>2</th><td>10</td><td>30</td><td>0.08</td><td>0.316</td><td>0.043</td><td>0.437</td></tr><tr><th>3</th><td>10</td><td>40</td><td>0.094</td><td>0.431</td><td>0.043</td><td>0.518</td></tr><tr><th>4</th><td>20</td><td>20</td><td>0.074</td><td>0.267</td><td>0.053</td><td>0.525</td></tr><tr><th>5</th><td>20</td><td>30</td><td>0.063</td><td>0.347</td><td>0.05</td><td>0.671</td></tr><tr><th>6</th><td>20</td><td>40</td><td>0.06</td><td>0.451</td><td>0.046</td><td>0.81</td></tr><tr><th>7</th><td>30</td><td>20</td><td>0.056</td><td>0.266</td><td>0.06</td><td>0.689</td></tr><tr><th>8</th><td>30</td><td>30</td><td>0.055</td><td>0.355</td><td>0.049</td><td>0.829</td></tr><tr><th>9</th><td>30</td><td>40</td><td>0.055</td><td>0.458</td><td>0.058</td><td>0.932</td></tr></tbody></table>
+<table class="data-frame"><thead><tr><th></th><th>item_n</th><th>sub_n</th><th>(Intercept)</th><th>age: Y</th><th>age: Y &amp; condition: B</th><th>condition: B</th></tr><tr><th></th><th>Int64</th><th>Int64</th><th>Float64⍰</th><th>Float64⍰</th><th>Float64⍰</th><th>Float64⍰</th></tr></thead><tbody><p>9 rows × 6 columns</p><tr><th>1</th><td>10</td><td>20</td><td>0.073</td><td>0.257</td><td>0.055</td><td>0.287</td></tr><tr><th>2</th><td>10</td><td>30</td><td>0.062</td><td>0.319</td><td>0.056</td><td>0.394</td></tr><tr><th>3</th><td>10</td><td>40</td><td>0.098</td><td>0.414</td><td>0.051</td><td>0.521</td></tr><tr><th>4</th><td>20</td><td>20</td><td>0.057</td><td>0.258</td><td>0.044</td><td>0.498</td></tr><tr><th>5</th><td>20</td><td>30</td><td>0.059</td><td>0.335</td><td>0.04</td><td>0.695</td></tr><tr><th>6</th><td>20</td><td>40</td><td>0.061</td><td>0.473</td><td>0.049</td><td>0.791</td></tr><tr><th>7</th><td>30</td><td>20</td><td>0.062</td><td>0.256</td><td>0.054</td><td>0.692</td></tr><tr><th>8</th><td>30</td><td>30</td><td>0.057</td><td>0.346</td><td>0.056</td><td>0.843</td></tr><tr><th>9</th><td>30</td><td>40</td><td>0.065</td><td>0.447</td><td>0.061</td><td>0.92</td></tr></tbody></table>
 
 <h2>Convert this file</h2>
 
@@ -1058,7 +1063,7 @@ mysim &#40;generic function with 6 methods&#41;
 </span><span class='hljl-cs'># convert_doc(&quot;simulation_tutorial.jmd&quot;, &quot;simulation_tutorial.ipynb&quot;)</span><span class='hljl-t'>
 
 </span><span class='hljl-cs'># convert to md for README</span><span class='hljl-t'>
-</span><span class='hljl-cs'># weave(&quot;simulation_tutorial.jmd&quot;, doctype=&quot;pandoc&quot;, out.path = &quot;README.md&quot;)</span>
+</span><span class='hljl-cs'># weave(&quot;simulation_tutorial.jmd&quot;, doctype=&quot;pandoc&quot;, out_path = &quot;README.md&quot;)</span>
 </pre>
 
 
