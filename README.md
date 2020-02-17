@@ -14,7 +14,15 @@ Load the packages we'll be using in Julia. In pkg run the following to get the v
 * `add https://github.com/RePsychLing/MixedModelsSim.jl#master`
 
 ~~~~{.julia}
-julia> using MixedModels        # run mixed models
+julia> using Pkg 
+
+julia> Pkg.activate()
+Activating environment at `~/Desktop/Julia/sim-tutorial/Project.toml`
+
+julia> Pkg.instantiate()
+
+julia> 
+using MixedModels        # run mixed models
 
 julia> using MixedModelsSim     # simulation functions for mixed models
 
@@ -38,9 +46,9 @@ Also load any packages we'll be using in R through `RCall()`.
 
 ~~~~{.julia}
 R"""
-library(ggplot2) # for visualisation
-library(dplyr)   # for data wrangling
-library(tidyr)   # for data wrangling
+require(ggplot2, quietly = TRUE) # for visualisation
+require(dplyr, quietly = TRUE)   # for data wrangling
+require(tidyr, quietly = TRUE)   # for data wrangling
 """;
 ~~~~~~~~~~~~~
 
@@ -179,11 +187,24 @@ Save all data to a csv file.
 kb07_sim_df = sim_to_df(kb07_sim)
 
 CSV.write("sim/kb07_sim.csv", kb07_sim_df)
+
+first(kb07_sim_df, 8)
 ~~~~~~~~~~~~~
 
 
 ~~~~
-"sim/kb07_sim.csv"
+8×6 DataFrame. Omitted printing of 1 columns
+│ Row │ iteration │ coefname       │ beta     │ se       │ z        │
+│     │ Int64     │ Symbol         │ Float64⍰ │ Float64⍰ │ Float64⍰ │
+├─────┼───────────┼────────────────┼──────────┼──────────┼──────────┤
+│ 1   │ 1         │ (Intercept)    │ 2248.0   │ 84.8585  │ 26.4912  │
+│ 2   │ 1         │ load: yes      │ 48.9212  │ 15.8225  │ 3.09187  │
+│ 3   │ 1         │ prec: maintain │ -320.632 │ 45.4898  │ -7.04844 │
+│ 4   │ 1         │ spkr: old      │ 62.8771  │ 15.8225  │ 3.9739   │
+│ 5   │ 2         │ (Intercept)    │ 2165.36  │ 79.8084  │ 27.132   │
+│ 6   │ 2         │ load: yes      │ 91.9312  │ 16.2066  │ 5.67246  │
+│ 7   │ 2         │ prec: maintain │ -353.079 │ 37.4427  │ -9.42985 │
+│ 8   │ 2         │ spkr: old      │ 46.542   │ 16.2066  │ 2.87179  │
 ~~~~
 
 
@@ -219,7 +240,7 @@ power_table(kb07_sim)
 
 
 ~~~~
-4×2 DataFrames.DataFrame
+4×2 DataFrame
 │ Row │ coefname       │ power   │
 │     │ Symbol         │ Float64 │
 ├─────┼────────────────┼─────────┤
@@ -250,7 +271,7 @@ power_table(kb07_sim_half)
 
 
 ~~~~
-4×2 DataFrames.DataFrame
+4×2 DataFrame
 │ Row │ coefname       │ power   │
 │     │ Symbol         │ Float64 │
 ├─────┼────────────────┼─────────┤
@@ -316,23 +337,23 @@ m1 = fit(MixedModel, f1, dat, contrasts=contrasts)
 Linear mixed model fit by maximum likelihood
  dv ~ 1 + age + condition + age & condition + (1 | item) + (1 | subj)
    logLik   -2 logLik     AIC        BIC    
- -1732.2943  3464.5885  3478.5885  3514.2191
+ -1735.9276  3471.8552  3485.8552  3521.4858
 
 Variance components:
-            Column     Variance   Std.Dev.  
-item     (Intercept)  0.006272732 0.07920058
-subj     (Intercept)  0.000000000 0.00000000
-Residual              1.044877433 1.02219246
+            Column    Variance   Std.Dev.  
+item     (Intercept)  0.00000000 0.00000000
+subj     (Intercept)  0.00556038 0.07456796
+Residual              1.05205446 1.02569706
  Number of obs: 1200; levels of grouping factors: 30, 20
 
   Fixed-effects parameters:
 ───────────────────────────────────────────────────────────────
                           Estimate  Std.Error  z value  P(>|z|)
 ───────────────────────────────────────────────────────────────
-(Intercept)            -0.0240362   0.0328606    -0.73   0.4645
-age: Y                 -0.0142197   0.0295082    -0.48   0.6299
-condition: B           -0.00221285  0.0295082    -0.07   0.9402
-age: Y & condition: B  -0.00459405  0.0295082    -0.16   0.8763
+(Intercept)             0.0137907   0.0339813     0.41   0.6849
+age: Y                  0.00847966  0.0339813     0.25   0.8029
+condition: B           -0.0257098   0.0296093    -0.87   0.3852
+age: Y & condition: B  -0.00811351  0.0296093    -0.27   0.7841
 ───────────────────────────────────────────────────────────────
 ~~~~
 
@@ -385,7 +406,7 @@ power_table(sim1)
 
 
 ~~~~
-4×2 DataFrames.DataFrame
+4×2 DataFrame
 │ Row │ coefname              │ power   │
 │     │ Symbol                │ Float64 │
 ├─────┼───────────────────────┼─────────┤
@@ -393,6 +414,46 @@ power_table(sim1)
 │ 2   │ age: Y                │ 0.132   │
 │ 3   │ condition: B          │ 0.989   │
 │ 4   │ age: Y & condition: B │ 0.056   │
+~~~~
+
+
+
+
+
+## Try your own design
+
+Edit `my_dat` below and make sure `my_f` is updated for your new design. Also make sure `my_beta` has the right number of elements (check `my_m.β` for the number and order). You can also change `my_sigma` and `my_theta`. Set the seed in `my_rng` to your favourite number.
+
+~~~~{.julia}
+my_dat = simdat_crossed(10, 10)
+
+my_f = @formula dv ~ 1 + (1|item) + (1|subj);
+my_m = fit(MixedModel, my_f, my_dat)
+
+my_beta = [0.0]
+my_sigma = 2.0
+my_theta = [1.0, 1.0]
+
+my_rng = MersenneTwister(8675309);
+
+my_nsims = 1000
+
+my_sim = simulate_waldtests(my_rng, my_nsims, my_m, 
+                        β = my_beta, 
+                        σ = my_sigma, 
+                        θ = my_theta,
+                        use_threads = true);
+
+power_table(my_sim)
+~~~~~~~~~~~~~
+
+
+~~~~
+1×2 DataFrame
+│ Row │ coefname    │ power   │
+│     │ Symbol      │ Float64 │
+├─────┼─────────────┼─────────┤
+│ 1   │ (Intercept) │ 0.083   │
 ~~~~
 
 
@@ -476,19 +537,19 @@ unstack(d, :coefname, :power)
 
 
 ~~~~
-9×6 DataFrames.DataFrame. Omitted printing of 1 columns
+9×6 DataFrame. Omitted printing of 1 columns
 │ Row │ item_n │ sub_n │ (Intercept) │ age: Y   │ age: Y & condition: B │
 │     │ Int64  │ Int64 │ Float64⍰    │ Float64⍰ │ Float64⍰              │
 ├─────┼────────┼───────┼─────────────┼──────────┼───────────────────────┤
-│ 1   │ 10     │ 20    │ 0.07        │ 0.257    │ 0.059                 │
-│ 2   │ 10     │ 30    │ 0.081       │ 0.345    │ 0.055                 │
-│ 3   │ 10     │ 40    │ 0.088       │ 0.428    │ 0.046                 │
-│ 4   │ 20     │ 20    │ 0.067       │ 0.274    │ 0.049                 │
-│ 5   │ 20     │ 30    │ 0.066       │ 0.338    │ 0.064                 │
-│ 6   │ 20     │ 40    │ 0.054       │ 0.413    │ 0.048                 │
-│ 7   │ 30     │ 20    │ 0.045       │ 0.289    │ 0.048                 │
-│ 8   │ 30     │ 30    │ 0.058       │ 0.344    │ 0.055                 │
-│ 9   │ 30     │ 40    │ 0.061       │ 0.438    │ 0.058                 │
+│ 1   │ 10     │ 20    │ 0.069       │ 0.236    │ 0.041                 │
+│ 2   │ 10     │ 30    │ 0.069       │ 0.35     │ 0.03                  │
+│ 3   │ 10     │ 40    │ 0.093       │ 0.425    │ 0.044                 │
+│ 4   │ 20     │ 20    │ 0.065       │ 0.246    │ 0.049                 │
+│ 5   │ 20     │ 30    │ 0.055       │ 0.358    │ 0.051                 │
+│ 6   │ 20     │ 40    │ 0.054       │ 0.45     │ 0.056                 │
+│ 7   │ 30     │ 20    │ 0.077       │ 0.265    │ 0.054                 │
+│ 8   │ 30     │ 30    │ 0.046       │ 0.34     │ 0.047                 │
+│ 9   │ 30     │ 40    │ 0.069       │ 0.439    │ 0.049                 │
 ~~~~
 
 

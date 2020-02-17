@@ -15,6 +15,10 @@ Load the packages we'll be using in Julia. In pkg run the following to get the v
 
 ```{julia;label=packages;term=true}
 
+using Pkg 
+Pkg.activate()
+Pkg.instantiate()
+
 using MixedModels        # run mixed models
 using MixedModelsSim     # simulation functions for mixed models
 using RCall              # call R functions from inside Julia
@@ -31,9 +35,9 @@ Also load any packages we'll be using in R through `RCall()`.
 ```{julia;label=Rlibs}
 
 R"""
-library(ggplot2) # for visualisation
-library(dplyr)   # for data wrangling
-library(tidyr)   # for data wrangling
+require(ggplot2, quietly = TRUE) # for visualisation
+require(dplyr, quietly = TRUE)   # for data wrangling
+require(tidyr, quietly = TRUE)   # for data wrangling
 """;
 
 ```
@@ -125,6 +129,8 @@ Save all data to a csv file.
 kb07_sim_df = sim_to_df(kb07_sim)
 
 CSV.write("sim/kb07_sim.csv", kb07_sim_df)
+
+first(kb07_sim_df, 8)
 
 ```
 
@@ -257,6 +263,33 @@ ggplot_betas(sim1, "fig/simbetas.png");
 
 power_table(sim1)
 
+```
+
+## Try your own design
+
+Edit `my_dat` below and make sure `my_f` is updated for your new design. Also make sure `my_beta` has the right number of elements (check `my_m.β` for the number and order). You can also change `my_sigma` and `my_theta`. Set the seed in `my_rng` to your favourite number.
+
+```{julia}
+my_dat = simdat_crossed(10, 10)
+
+my_f = @formula dv ~ 1 + (1|item) + (1|subj);
+my_m = fit(MixedModel, my_f, my_dat)
+
+my_beta = [0.0]
+my_sigma = 2.0
+my_theta = [1.0, 1.0]
+
+my_rng = MersenneTwister(8675309);
+
+my_nsims = 1000
+
+my_sim = simulate_waldtests(my_rng, my_nsims, my_m, 
+                        β = my_beta, 
+                        σ = my_sigma, 
+                        θ = my_theta,
+                        use_threads = true);
+
+power_table(my_sim)
 ```
 
 

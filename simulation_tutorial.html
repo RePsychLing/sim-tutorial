@@ -672,7 +672,15 @@ div.title {text-align: center;}
 </ul>
 
 <pre class='hljl'>
-<span class='hljl-nB'>julia&gt; </span><span class='hljl-k'>using</span><span class='hljl-t'> </span><span class='hljl-n'>MixedModels</span><span class='hljl-t'>        </span><span class='hljl-cs'># run mixed models</span><span class='hljl-t'>
+<span class='hljl-nB'>julia&gt; </span><span class='hljl-k'>using</span><span class='hljl-t'> </span><span class='hljl-n'>Pkg</span><span class='hljl-t'> 
+
+</span><span class='hljl-nB'>julia&gt; </span><span class='hljl-n'>Pkg</span><span class='hljl-oB'>.</span><span class='hljl-nf'>activate</span><span class='hljl-p'>()</span><span class='hljl-t'>
+Activating environment at `~/Desktop/Julia/sim-tutorial/Project.toml`
+
+</span><span class='hljl-nB'>julia&gt; </span><span class='hljl-n'>Pkg</span><span class='hljl-oB'>.</span><span class='hljl-nf'>instantiate</span><span class='hljl-p'>()</span><span class='hljl-t'>
+
+</span><span class='hljl-nB'>julia&gt; </span><span class='hljl-t'>
+using MixedModels        # run mixed models
 
 </span><span class='hljl-nB'>julia&gt; </span><span class='hljl-k'>using</span><span class='hljl-t'> </span><span class='hljl-n'>MixedModelsSim</span><span class='hljl-t'>     </span><span class='hljl-cs'># simulation functions for mixed models</span><span class='hljl-t'>
 
@@ -691,9 +699,9 @@ div.title {text-align: center;}
 
 <pre class='hljl'>
 <span class='hljl-so'>R&quot;&quot;&quot;
-library(ggplot2) # for visualisation
-library(dplyr)   # for data wrangling
-library(tidyr)   # for data wrangling
+require(ggplot2, quietly = TRUE) # for visualisation
+require(dplyr, quietly = TRUE)   # for data wrangling
+require(tidyr, quietly = TRUE)   # for data wrangling
 &quot;&quot;&quot;</span><span class='hljl-p'>;</span>
 </pre>
 
@@ -813,14 +821,14 @@ load: yes         78.5904    16.0785     4.89   &lt;1e-5
 <pre class='hljl'>
 <span class='hljl-n'>kb07_sim_df</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>sim_to_df</span><span class='hljl-p'>(</span><span class='hljl-n'>kb07_sim</span><span class='hljl-p'>)</span><span class='hljl-t'>
 
-</span><span class='hljl-n'>CSV</span><span class='hljl-oB'>.</span><span class='hljl-nf'>write</span><span class='hljl-p'>(</span><span class='hljl-s'>&quot;sim/kb07_sim.csv&quot;</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>kb07_sim_df</span><span class='hljl-p'>)</span>
+</span><span class='hljl-n'>CSV</span><span class='hljl-oB'>.</span><span class='hljl-nf'>write</span><span class='hljl-p'>(</span><span class='hljl-s'>&quot;sim/kb07_sim.csv&quot;</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>kb07_sim_df</span><span class='hljl-p'>)</span><span class='hljl-t'>
+
+</span><span class='hljl-nf'>first</span><span class='hljl-p'>(</span><span class='hljl-n'>kb07_sim_df</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>8</span><span class='hljl-p'>)</span>
 </pre>
 
 
-<pre class="output">
-&quot;sim/kb07_sim.csv&quot;
-</pre>
 
+<table class="data-frame"><thead><tr><th></th><th>iteration</th><th>coefname</th><th>beta</th><th>se</th><th>z</th><th>p</th></tr><tr><th></th><th>Int64</th><th>Symbol</th><th>Float64⍰</th><th>Float64⍰</th><th>Float64⍰</th><th>Float64⍰</th></tr></thead><tbody><p>8 rows × 6 columns</p><tr><th>1</th><td>1</td><td>(Intercept)</td><td>2248.0</td><td>84.8585</td><td>26.4912</td><td>1.22408e-154</td></tr><tr><th>2</th><td>1</td><td>load: yes</td><td>48.9212</td><td>15.8225</td><td>3.09187</td><td>0.00198898</td></tr><tr><th>3</th><td>1</td><td>prec: maintain</td><td>-320.632</td><td>45.4898</td><td>-7.04844</td><td>1.8093e-12</td></tr><tr><th>4</th><td>1</td><td>spkr: old</td><td>62.8771</td><td>15.8225</td><td>3.9739</td><td>7.07065e-5</td></tr><tr><th>5</th><td>2</td><td>(Intercept)</td><td>2165.36</td><td>79.8084</td><td>27.132</td><td>4.12634e-162</td></tr><tr><th>6</th><td>2</td><td>load: yes</td><td>91.9312</td><td>16.2066</td><td>5.67246</td><td>1.40758e-8</td></tr><tr><th>7</th><td>2</td><td>prec: maintain</td><td>-353.079</td><td>37.4427</td><td>-9.42985</td><td>4.10688e-21</td></tr><tr><th>8</th><td>2</td><td>spkr: old</td><td>46.542</td><td>16.2066</td><td>2.87179</td><td>0.00408153</td></tr></tbody></table>
 
 <p>Plot betas in ggplot. In the code editor or Jupyter notebooks, you can omit the file name to just display the figure in an external window. </p>
 
@@ -910,24 +918,24 @@ load: yes         78.5904    16.0785     4.89   &lt;1e-5
 Linear mixed model fit by maximum likelihood
  dv ~ 1 &#43; age &#43; condition &#43; age &amp; condition &#43; &#40;1 | item&#41; &#43; &#40;1 | subj&#41;
    logLik   -2 logLik     AIC        BIC    
- -1660.4894  3320.9788  3334.9788  3370.6093
+ -1681.5786  3363.1571  3377.1571  3412.7877
 
 Variance components:
-            Column    Variance   Std.Dev. 
-item     &#40;Intercept&#41;  0.00000000 0.0000000
-subj     &#40;Intercept&#41;  0.00000000 0.0000000
-Residual              0.93202582 0.9654148
+            Column    Variance  Std.Dev. 
+item     &#40;Intercept&#41;  0.0000000 0.0000000
+subj     &#40;Intercept&#41;  0.0000000 0.0000000
+Residual              0.9653678 0.9825313
  Number of obs: 1200; levels of grouping factors: 30, 20
 
   Fixed-effects parameters:
-──────────────────────────────────────────────────────────────
-                         Estimate  Std.Error  z value  P&#40;&gt;|z|&#41;
-──────────────────────────────────────────────────────────────
-&#40;Intercept&#41;             0.0333511  0.0278691     1.20   0.2314
-age: Y                 -0.0349208  0.0278691    -1.25   0.2102
-condition: B           -0.048783   0.0278691    -1.75   0.0800
-age: Y &amp; condition: B  -0.0191283  0.0278691    -0.69   0.4925
-──────────────────────────────────────────────────────────────
+───────────────────────────────────────────────────────────────
+                          Estimate  Std.Error  z value  P&#40;&gt;|z|&#41;
+───────────────────────────────────────────────────────────────
+&#40;Intercept&#41;            -0.00526093  0.0283632    -0.19   0.8528
+age: Y                  0.00751336  0.0283632     0.26   0.7911
+condition: B            0.0185408   0.0283632     0.65   0.5133
+age: Y &amp; condition: B   0.0445935   0.0283632     1.57   0.1159
+───────────────────────────────────────────────────────────────
 </pre>
 
 
@@ -971,6 +979,37 @@ age: Y &amp; condition: B  -0.0191283  0.0278691    -0.69   0.4925
 
 
 <table class="data-frame"><thead><tr><th></th><th>coefname</th><th>power</th></tr><tr><th></th><th>Symbol</th><th>Float64</th></tr></thead><tbody><p>4 rows × 2 columns</p><tr><th>1</th><td>(Intercept)</td><td>0.062</td></tr><tr><th>2</th><td>age: Y</td><td>0.132</td></tr><tr><th>3</th><td>condition: B</td><td>0.989</td></tr><tr><th>4</th><td>age: Y &amp; condition: B</td><td>0.056</td></tr></tbody></table>
+
+<h2>Try your own design</h2>
+<p>Edit <code>my_dat</code> below and make sure <code>my_f</code> is updated for your new design. Also make sure <code>my_beta</code> has the right number of elements &#40;check <code>my_m.β</code> for the number and order&#41;. You can also change <code>my_sigma</code> and <code>my_theta</code>. Set the seed in <code>my_rng</code> to your favourite number.</p>
+
+
+<pre class='hljl'>
+<span class='hljl-n'>my_dat</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>simdat_crossed</span><span class='hljl-p'>(</span><span class='hljl-ni'>10</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>10</span><span class='hljl-p'>)</span><span class='hljl-t'>
+
+</span><span class='hljl-n'>my_f</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nd'>@formula</span><span class='hljl-t'> </span><span class='hljl-n'>dv</span><span class='hljl-t'> </span><span class='hljl-oB'>~</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-p'>(</span><span class='hljl-ni'>1</span><span class='hljl-oB'>|</span><span class='hljl-n'>item</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-p'>(</span><span class='hljl-ni'>1</span><span class='hljl-oB'>|</span><span class='hljl-n'>subj</span><span class='hljl-p'>);</span><span class='hljl-t'>
+</span><span class='hljl-n'>my_m</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>fit</span><span class='hljl-p'>(</span><span class='hljl-n'>MixedModel</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>my_f</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>my_dat</span><span class='hljl-p'>)</span><span class='hljl-t'>
+
+</span><span class='hljl-n'>my_beta</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>[</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>]</span><span class='hljl-t'>
+</span><span class='hljl-n'>my_sigma</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nfB'>2.0</span><span class='hljl-t'>
+</span><span class='hljl-n'>my_theta</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>[</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>]</span><span class='hljl-t'>
+
+</span><span class='hljl-n'>my_rng</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>MersenneTwister</span><span class='hljl-p'>(</span><span class='hljl-ni'>8675309</span><span class='hljl-p'>);</span><span class='hljl-t'>
+
+</span><span class='hljl-n'>my_nsims</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-ni'>1000</span><span class='hljl-t'>
+
+</span><span class='hljl-n'>my_sim</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>simulate_waldtests</span><span class='hljl-p'>(</span><span class='hljl-n'>my_rng</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>my_nsims</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>my_m</span><span class='hljl-p'>,</span><span class='hljl-t'> 
+                        </span><span class='hljl-n'>β</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>my_beta</span><span class='hljl-p'>,</span><span class='hljl-t'> 
+                        </span><span class='hljl-n'>σ</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>my_sigma</span><span class='hljl-p'>,</span><span class='hljl-t'> 
+                        </span><span class='hljl-n'>θ</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>my_theta</span><span class='hljl-p'>,</span><span class='hljl-t'>
+                        </span><span class='hljl-n'>use_threads</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-kc'>true</span><span class='hljl-p'>);</span><span class='hljl-t'>
+
+</span><span class='hljl-nf'>power_table</span><span class='hljl-p'>(</span><span class='hljl-n'>my_sim</span><span class='hljl-p'>)</span>
+</pre>
+
+
+
+<table class="data-frame"><thead><tr><th></th><th>coefname</th><th>power</th></tr><tr><th></th><th>Symbol</th><th>Float64</th></tr></thead><tbody><p>1 rows × 2 columns</p><tr><th>1</th><td>(Intercept)</td><td>0.083</td></tr></tbody></table>
 
 <h2>Write a function to vary something</h2>
 
@@ -1047,7 +1086,7 @@ mysim &#40;generic function with 6 methods&#41;
 
 
 
-<table class="data-frame"><thead><tr><th></th><th>item_n</th><th>sub_n</th><th>(Intercept)</th><th>age: Y</th><th>age: Y &amp; condition: B</th><th>condition: B</th></tr><tr><th></th><th>Int64</th><th>Int64</th><th>Float64⍰</th><th>Float64⍰</th><th>Float64⍰</th><th>Float64⍰</th></tr></thead><tbody><p>9 rows × 6 columns</p><tr><th>1</th><td>10</td><td>20</td><td>0.087</td><td>0.243</td><td>0.045</td><td>0.297</td></tr><tr><th>2</th><td>10</td><td>30</td><td>0.081</td><td>0.344</td><td>0.062</td><td>0.415</td></tr><tr><th>3</th><td>10</td><td>40</td><td>0.093</td><td>0.422</td><td>0.056</td><td>0.505</td></tr><tr><th>4</th><td>20</td><td>20</td><td>0.063</td><td>0.26</td><td>0.055</td><td>0.519</td></tr><tr><th>5</th><td>20</td><td>30</td><td>0.065</td><td>0.343</td><td>0.045</td><td>0.718</td></tr><tr><th>6</th><td>20</td><td>40</td><td>0.047</td><td>0.438</td><td>0.053</td><td>0.82</td></tr><tr><th>7</th><td>30</td><td>20</td><td>0.058</td><td>0.246</td><td>0.047</td><td>0.676</td></tr><tr><th>8</th><td>30</td><td>30</td><td>0.067</td><td>0.355</td><td>0.053</td><td>0.844</td></tr><tr><th>9</th><td>30</td><td>40</td><td>0.068</td><td>0.449</td><td>0.059</td><td>0.939</td></tr></tbody></table>
+<table class="data-frame"><thead><tr><th></th><th>item_n</th><th>sub_n</th><th>(Intercept)</th><th>age: Y</th><th>age: Y &amp; condition: B</th><th>condition: B</th></tr><tr><th></th><th>Int64</th><th>Int64</th><th>Float64⍰</th><th>Float64⍰</th><th>Float64⍰</th><th>Float64⍰</th></tr></thead><tbody><p>9 rows × 6 columns</p><tr><th>1</th><td>10</td><td>20</td><td>0.092</td><td>0.23</td><td>0.054</td><td>0.305</td></tr><tr><th>2</th><td>10</td><td>30</td><td>0.065</td><td>0.308</td><td>0.035</td><td>0.375</td></tr><tr><th>3</th><td>10</td><td>40</td><td>0.084</td><td>0.425</td><td>0.057</td><td>0.541</td></tr><tr><th>4</th><td>20</td><td>20</td><td>0.067</td><td>0.261</td><td>0.045</td><td>0.509</td></tr><tr><th>5</th><td>20</td><td>30</td><td>0.056</td><td>0.337</td><td>0.061</td><td>0.688</td></tr><tr><th>6</th><td>20</td><td>40</td><td>0.064</td><td>0.434</td><td>0.056</td><td>0.806</td></tr><tr><th>7</th><td>30</td><td>20</td><td>0.062</td><td>0.285</td><td>0.056</td><td>0.682</td></tr><tr><th>8</th><td>30</td><td>30</td><td>0.056</td><td>0.326</td><td>0.035</td><td>0.853</td></tr><tr><th>9</th><td>30</td><td>40</td><td>0.058</td><td>0.454</td><td>0.046</td><td>0.929</td></tr></tbody></table>
 
 <h2>Convert this file</h2>
 
@@ -1073,7 +1112,7 @@ mysim &#40;generic function with 6 methods&#41;
           <div class="footer"><p>
           Published from <a href="simulation_tutorial.jmd">simulation_tutorial.jmd</a> using
           <a href="http://github.com/mpastell/Weave.jl">Weave.jl</a>
-           on 2020-02-16.
+           on 2020-02-17.
           <p></div>
 
 
