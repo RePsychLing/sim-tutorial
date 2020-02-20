@@ -572,3 +572,7 @@ unstack(d, :coefname, :power)
 # weave("simulation_tutorial.jmd", doctype="pandoc", out_path = "README.md")
 ~~~~~~~~~~~~~
 
+## Acknowledgements
+
+This work was supported by the Center for Interdisciplinary Research, Bielefeld (ZiF) Cooperation Group "Statistical models for psychological and linguistic data".
+
