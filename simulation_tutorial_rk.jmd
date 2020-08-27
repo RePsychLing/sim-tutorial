@@ -1,0 +1,388 @@
+---
+title: "Simulation Tutorial"
+author: "Lisa DeBruine"
+date: 2020-02-13
+---
+
+## Setup 
+
+### Julia
+
+Load the packages we'll be using in Julia
+
+```{julia;label=packages;term=true}
+using MixedModels        # run mixed models
+using MixedModelsSim     # simulation functions for mixed models
+using RCall, RData       # call R functions from inside Julia
+using DataFrames, DataFramesMeta # work with data tables
+using Random, Statistics # statistical functions
+using CSV                # write CSV files
+```
+
+### R
+
+Also load any packages we'll be using in R through `RCall()`.
+
+```{julia;label=Rlibs}
+R"""
+library(ggplot2) # for visualisation
+#library(svglite) # for svg plots
+library(dplyr)   # for data wrangling
+library(tidyr)   # for data wrangling
+""";
+```
+
+### Define Custom functions
+
+It's useful to be able to weave your file quickly, 
+so set the number of simulations to a relatively low number while you're 
+setting up your script and change it to a larger number when everything
+is debugged.
+
+```{julia;label=scriptvars}
+nsims = 1000 # set to a low number for test, high for production
+```
+
+
+#### Define `ggplot_betas`
+
+This function plots the beta values returned from `simulate_waldtests` using ggplot in R.
+
+```{julia;label=ggplot_betas}
+
+function ggplot_betas(sim, figname = "betas.svg", width = 7, height = 5) 
+
+    beta_df = DataFrame(columntable(sim).β)
+
+    R"""
+        p <- $beta_df %>%
+            gather(var, val, 1:ncol(.)) %>%
+            ggplot(aes(val, color = var)) +
+            geom_density(show.legend = FALSE) +
+            facet_wrap(~var, scales = "free")
+
+        ggsave($figname, p, width = $width, height = $height)
+
+        p
+    """
+end
+
+```
+
+#### Define: `power_table`
+
+This function calculates power (the proportion of p-values less than alpha) for 
+the p-values returned from `simulate_waldtests`.
+
+```{julia;label=power}
+
+function power_table(sim, alpha = 0.05)
+    pvals = DataFrame(columntable(sim).p)
+    pvals = stack(pvals, 1:ncol(pvals)) 
+    pwr = by(pvals, :variable, :value => x->mean(x.<alpha) )
+    rename!(pwr, ["coefname", "power"])
+end
+
+
+```
+
+### Define `sim_to_dataframe`
+
+Output the values from `simulate_waldtests` as a data frame with columns:
+coefname, iteration,  p,  se,  z,  beta 
+
+```{julia;label=sim_to_dataframe}
+function sim_to_dataframe(sims)
+    tab = DataFrame()
+    for (i, sim) in enumerate(sims)
+        df = DataFrame(sim)
+        df[!, :iteration] .= i
+        df[!, :var] .= string.(collect(keys(sim)))
+        append!(tab, df)
+    end
+    longtab = stack(tab, 1:4, variable_name = :coefname)
+    widetab = unstack(longtab, :var, :value)
+    rename!(widetab, ["coefname", "iteration",  "p",  "se",  "z",  "beta" ])
+    df_ordered = widetab[[:iteration, :coefname, :beta, :se, :z, :p]]
+    sort!(df_ordered, cols = [:iteration])
+end
+```
+
+## Existing Data
+
+Load existing data from this morning's tutorial. Set the contrasts and run model 4.
+
+```{julia;label=load-data}
+
+# load data
+# kb07 = load("data/kb07_exp2_rt.rds");
+kb07 = MixedModels.dataset("kb07");
+
+# set contrasts
+contrasts = Dict(:spkr => HelmertCoding(), 
+                 :prec => HelmertCoding(), 
+                 :load => HelmertCoding());
+
+# define formula
+f4 = @formula(rt_trunc ~ 1 + spkr+prec+load + (1|subj) + (1+prec|item));
+
+# fit model
+m4 = fit(MixedModel, f4, kb07, contrasts=contrasts)
+
+```
+
+### Simulate data with same parameters
+
+Use the `simulate_waldtests()` function to run `j nsims` iterations of data sampled 
+using the parameters from `m4`. Set up a random seed to make the simulation reproducible. 
+You can use your favourite number.
+
+```{julia}
+# seed for reproducibility
+rnd = MersenneTwister(8675309);
+
+# run 1000 iterations
+sim4 = simulate_waldtests(rnd, nsims, m4, use_threads = true);
+```
+
+Save all data to a csv file.
+
+```{julia}
+
+sim4_tab = sim_to_dataframe(sim4)
+
+CSV.write("sim4.csv", sim4_tab)
+
+```
+
+Plot betas in ggplot.
+
+```{julia}
+
+ggplot_betas(sim4, "fig/m4_betas.svg");
+
+```
+
+![](fig/m4_betas.svg)
+
+
+### Power calculation
+
+```{julia}
+
+power_table(sim4)
+
+```
+
+### Change parameters
+
+Let's say we want to check our power to detect effects of spkr, prec, and load 
+that are half the size of our pilot data. We can set a new vector of beta values 
+with the `β` argument to `simulate_waldtests`.
+
+```{julia}
+
+newβ = m4.β
+newβ[2:4] = m4.β[2:4]/2
+
+sim4_half = simulate_waldtests(rnd, nsims, m4, β = newβ, use_threads = true);
+
+power_table(sim4_half)
+
+```
+
+
+# Simulating Data from Scratch
+
+
+## simdat
+
+Custom function for simulating data in julia.
+
+This is for a design where `sub_n` subjects per `age` group (old or yound)
+respond to `item_n` items in each of two `condition`s (A or B).
+Create a simulated data structure with `simdat(sub_n, item_n)`.
+
+```{julia;label=simdat}
+
+function simdat(sub_n = 1, item_n = 1) 
+
+    ages = vcat(
+        repeat(["O"], sub_n),
+        repeat(["Y"], sub_n)
+    )
+
+    subject = (subj = nlevels(length(ages)), 
+               age = ages)
+
+    item = (item = nlevels(item_n, "I"),)
+
+    design = factorproduct(item, subject, 
+                          (condition=["A","B"],)) |>
+             DataFrame
+
+    # add random numbers as a DV
+    design.dv = randn(nrow(design))
+
+    design
+end
+
+# default gives you the general experimental design structure
+simdat()
+
+```
+
+## Set up design with R
+
+Or you can use `sim_design()` in {faux} to set up a data structure in R. 
+Don't worry about setting means and SDs, we'll simulate null effects and 
+add fixed and random effects structures directly to  `simulate_waldtests`.
+
+```{julia;label=design-r}
+
+R"""
+
+dat <- faux::sim_design(
+    within = list(item = faux::make_id(20, "I"),
+                  condition = c("A", "B")), 
+    between = list(age = c("O", "Y")), 
+    n = 30,
+    dv = "dv", 
+    id = "subj",
+    plot = FALSE, 
+    long = TRUE
+)
+
+""";
+
+dat = rcopy(R"dat");
+
+```
+
+## Set up model
+
+```{julia;label=model}
+
+dat = simdat(30, 20)
+
+# set contrasts
+contrasts = Dict(:age => HelmertCoding(), 
+                 :condition => HelmertCoding());
+
+f1 = @formula dv ~ 1 + age * condition + (1|item) + (1|subj);
+m1 = fit(MixedModel, f1, dat, contrasts=contrasts)
+
+m1.β
+m1.σ
+m1.θ
+
+```
+
+## Simulate
+
+* Set a seed for reproducibility
+* specify new β, σ, and θ
+
+```{julia;label=sim}
+
+rnd = MersenneTwister(8675309);
+
+new_beta = [0, 0.25, 0.25, 0]
+new_sigma = 2.0
+new_theta = [1.0, 1.0]
+
+sim1 = simulate_waldtests(rnd, nsims, m1, 
+                        β = new_beta, 
+                        σ = new_sigma, 
+                        θ = new_theta,
+                        use_threads = true);
+
+```
+
+
+## Explore simulation output
+
+
+```{julia}
+
+ggplot_betas(sim1, "fig/simbetas.svg");
+
+```
+
+![](fig/simbetas.svg)
+
+
+## Power
+
+```{julia;label=power}
+
+power_table(sim1)
+
+```
+
+
+## Write a function to vary something
+
+```{julia}
+
+function mysim(sub_n, item_n, 
+               nsims = 1000, 
+               beta  = [0, 0, 0, 0],
+               sigma = 2.0, 
+               theta = [1.0, 1.0],
+               seed = convert(Int64, round(rand()*1e8))
+               )
+    # generate data
+    dat = simdat(sub_n, item_n)
+
+    # set contrasts
+    contrasts = Dict(:age => HelmertCoding(), 
+                     :condition => HelmertCoding());
+
+    # set up model
+    f = @formula dv ~ 1 + age*condition + (1|item) + (1|subj);
+    m = fit(MixedModel, f, dat, contrasts=contrasts)
+
+    # run simulation
+    rnd = MersenneTwister(seed);
+
+    simulate_waldtests(
+        rnd, nsims, m, 
+        β = beta, 
+        σ = sigma, 
+        θ = theta, 
+        use_threads = true
+    );
+end
+
+```
+
+Run simulations over a range of values for any parameter.
+
+```{julia}
+# varying
+sub_ns = [20, 30, 40]
+item_ns = [10, 20, 30]
+
+# fixed
+nsims = 1000
+new_beta = [0, 0.4, 0.1, 0]
+new_sigma = 2.0
+new_theta = [1.0, 1.0]
+
+d = DataFrame()
+
+for sub_n in sub_ns
+    for item_n in item_ns
+        s = mysim(sub_n, item_n, nsims, new_beta, new_sigma, new_theta);
+        pt = power_table(s)
+        pt[!, :item_n] .= item_n
+        pt[!, :sub_n] .= sub_n
+        append!(d, pt)
+    end
+end
+
+CSV.write("power.csv", d)
+
+d
+```
